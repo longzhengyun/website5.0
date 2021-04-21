@@ -3,8 +3,8 @@ const path = require('path')
 module.exports = {
   reactStrictMode: true,
   webpack: config => {
-    config.resolve.alias['~'] = path.resolve(__dirname);
-    return config;
+    config.resolve.alias['~'] = path.resolve(__dirname)
+    return config
   },
   future: {
     webpack5: true,

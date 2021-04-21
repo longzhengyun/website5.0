@@ -1,35 +1,40 @@
-import Promise from 'bluebird'
-import jwt from 'jsonwebtoken'
-
-import { PostFormat } from '~/server/utils'
-import { secret, dbQuery } from '~/server/config'
-
-const verify = Promise.promisify(jwt.verify)
+import { dbQuery } from '~/server/config'
+import { formatPost, encodeToken } from '~/server/utils'
 
 export default async (req, res) => {
-  return PostFormat(req, res, async () => {
-    const token = req.cookies.token
+  return formatPost(req, res, async (params, tokenData) => {
+    const { id, username } = tokenData
 
     let code = -1
     let msg = ''
     let data
 
-    try {
-      // 解码
-      let { id, username } = await verify(token, secret)
+    if (id === 0) {
+      code = -3
+      msg = '未登录，退出失败'
+    } else {
+      try {
+        const queryData = await dbQuery(`SELECT * FROM admin_data WHERE id='${id}' AND username='${username}'`)
+        if (queryData.length > 0) {
+          const token = encodeToken({
+            id: 0, // 未登录id
+            username: '', // 账户名为空
+          })
 
-      const queryData = await dbQuery(`SELECT * FROM admin_data WHERE id='${id}' AND username='${username}'`)
-      if (Array.isArray(queryData) && queryData.length > 0) {
-        code = 0
-        msg = '退出成功'
+          code = 0
+          msg = '退出成功'
+          data = { token }
 
-        const expires = new Date()
-        res.setHeader('Set-Cookie', 'token=', { expires })
-      } else {
-        msg = '退出失败'
+          const now = new Date().getTime()
+          const expires = new Date(now + 1000 * 60 * 60)
+          const path = '/'
+          res.setHeader('Set-Cookie', `token=${token}`, { expires, path })
+        } else {
+          msg = '退出失败'
+        }
+      } catch (error) {
+        msg = error.message
       }
-    } catch (error) {
-      msg = error.message
     }
 
     return {
