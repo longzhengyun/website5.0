@@ -1,0 +1,21 @@
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    var theme = 'light';
+    try {
+      var saved = localStorage.getItem('jary-theme');
+      if (saved === 'dark' || saved === 'light') {
+        theme = saved;
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'dark';
+      }
+    } catch (error) {
+      theme = 'light';
+    }
+    root.dataset.theme = theme;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', theme === 'dark' ? '#100f0d' : '#f7f5f0');
+    }
+  })();
+</script>

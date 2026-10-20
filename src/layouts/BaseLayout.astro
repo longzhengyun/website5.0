@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+import ThemeScript from '../components/ThemeScript.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import { getProfile } from '../lib/content';
+import { SITE } from '../config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  section?: 'home' | 'articles' | 'projects' | 'about';
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  noindex?: boolean;
+  noCanonical?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  section,
+  ogType = 'website',
+  ogImage,
+  noindex = false,
+  noCanonical = false,
+} = Astro.props;
+
+const profile = await getProfile();
+const site = Astro.site ?? new URL('https://jary8.com');
+const canonical = new URL(Astro.url.pathname, site).href;
+const pageTitle = title ? `${title} · ${SITE.name}` : SITE.title;
+const ogImageUrl = new URL(ogImage ?? SITE.defaultOgImage, site).href;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {!noCanonical && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <meta name="theme-color" content="#f7f5f0" />
+    <meta name="author" content={profile.data.name} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS`} href="/rss.xml" />
+    <link rel="preload" href="/fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+
+    <ThemeScript />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳至主内容</a>
+    <Header section={section} profile={profile} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer profile={profile} />
+    <SearchDialog />
+
+    <script>
+      document.querySelectorAll<HTMLImageElement>('img.js-cover-img').forEach((image) => {
+        image.addEventListener(
+          'error',
+          () => {
+            image.hidden = true;
+          },
+          { once: true },
+        );
+      });
+    </script>
+  </body>
+</html>

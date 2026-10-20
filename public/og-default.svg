@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f7f5f0"/>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.2" fill="#e2ddd3"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.55"/>
+  <ellipse cx="930" cy="315" rx="330" ry="128" transform="rotate(-18 930 315)" fill="none" stroke="#b23a2c" stroke-width="2"/>
+  <circle cx="1136" cy="196" r="7" fill="#b23a2c"/>
+  <circle cx="930" cy="315" r="96" fill="#171512"/>
+  <circle cx="930" cy="315" r="96" fill="none" stroke="#b23a2c" stroke-width="1.5" stroke-dasharray="3 10"/>
+  <rect x="72" y="76" width="14" height="14" fill="#b23a2c"/>
+  <text x="100" y="90" font-family="JetBrains Mono, monospace" font-size="18" letter-spacing="6" fill="#5f5a51">PORTFOLIO / JOURNAL</text>
+  <text x="72" y="252" font-family="Instrument Serif, Songti SC, serif" font-size="76" fill="#171512">佳瑞网 5.0</text>
+  <text x="72" y="340" font-family="Instrument Serif, Songti SC, serif" font-size="40" fill="#5f5a51">Jary — Web 前端开发</text>
+  <text x="72" y="420" font-family="JetBrains Mono, monospace" font-size="18" letter-spacing="3" fill="#8a847a">SITE SINCE 2008</text>
+  <path d="M72 520h260" stroke="#b23a2c" stroke-width="2"/>
+  <text x="72" y="566" font-family="JetBrains Mono, monospace" font-size="18" letter-spacing="2" fill="#8a847a">ARTICLES / PROJECTS / NOTES</text>
+</svg>

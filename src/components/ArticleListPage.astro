@@ -1,0 +1,100 @@
+---
+import ArticleListScripts from './ArticleListScripts.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import CategoryTabs from './CategoryTabs.astro';
+import Pagination from './Pagination.astro';
+import PostList from './PostList.astro';
+import type { ArticleEntry } from '../lib/content';
+import { ARTICLES_PER_PAGE } from '../config/site';
+
+interface CategoryInfo {
+  slug: string;
+  label: string;
+}
+
+interface Props {
+  allArticles: ArticleEntry[];
+  pageArticles: ArticleEntry[];
+  page: number;
+  totalPages: number;
+  category?: CategoryInfo;
+  redirectQueries?: boolean;
+}
+
+const {
+  allArticles,
+  pageArticles,
+  page,
+  totalPages,
+  category,
+  redirectQueries = false,
+} = Astro.props;
+
+const totalInScope = category
+  ? allArticles.filter((article) => article.data.category === category.label).length
+  : allArticles.length;
+
+const h1 = category ? `${category.label} 文章` : '文章';
+const kicker = category ? 'CATEGORY' : 'WRITING';
+const baseDescription = category
+  ? `${category.label} 分类下的文章列表，记录 Web 前端实践中与 ${category.label} 相关的问题、方案和取舍，按发布时间倒序排列。`
+  : '佳瑞网的文章列表，记录 Web 前端、界面设计、性能优化与工程化的实践和取舍；按发布时间排列，可按分类筛选，并提供搜索入口。';
+const startIndex = (page - 1) * ARTICLES_PER_PAGE;
+
+const breadcrumbs = category
+  ? [
+      { label: '首页', href: '/' },
+      { label: '文章', href: '/articles/' },
+      { label: `${category.label} 文章` },
+    ]
+  : [];
+---
+
+<div class="page page--list">
+  <div class="list-shell">
+    {category && <Breadcrumbs items={breadcrumbs} />}
+
+    <header class="page-head">
+      <div>
+        <p class="page-kicker">{kicker}</p>
+        <h1 class="page-title" id="page-title" tabindex="-1">{h1}</h1>
+        <p class="page-desc">{baseDescription}</p>
+      </div>
+      <div>
+        <p class="page-count">共 {totalInScope} 篇 · 第 {page} / {totalPages} 页</p>
+        <button
+          class="search-inline"
+          type="button"
+          data-open-search
+          aria-haspopup="dialog"
+          aria-controls="searchDialog"
+        >
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+          搜索文章与项目
+        </button>
+      </div>
+    </header>
+
+    <div class="tabs-row">
+      <CategoryTabs articles={allArticles} activeSlug={category?.slug} />
+    </div>
+
+    <section id="article-list" aria-labelledby="article-list-title">
+      <h2 class="sr-only" id="article-list-title" tabindex="-1">文章列表</h2>
+      {
+        pageArticles.length > 0 ? (
+          <PostList articles={pageArticles} startIndex={startIndex} />
+        ) : (
+          <div class="empty-state">
+            <p>还没有已发布文章。</p>
+            <p><a href="/">返回首页</a></p>
+          </div>
+        )
+      }
+    </section>
+
+    <Pagination currentPage={page} totalPages={totalPages} categorySlug={category?.slug} />
+  </div>
+
+  <ArticleListScripts redirectQueries={redirectQueries} />
+</div>

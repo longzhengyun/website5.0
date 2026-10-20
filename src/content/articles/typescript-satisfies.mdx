@@ -1,0 +1,40 @@
+---
+title: satisfies 解决了什么问题
+slug: typescript-satisfies
+summary: satisfies 既保留字面量推断，又能校验结构。本文用配置表与路由表两个例子，比较注解、as const 和 satisfies 的差异。
+category: JavaScript
+tags: [TypeScript, 类型系统]
+publishedAt: 2026-08-30
+---
+
+## 注解会丢失字面量
+
+给配置对象加类型注解很自然，但注解会把推断结果拓宽成声明类型，后续就取不到具体的键和字面量值。
+
+```ts
+type Route = { path: string; label: string };
+const routes: Route[] = [
+  { path: '/', label: '首页' },
+];
+// routes[0].label 的类型是 string
+```
+
+## satisfies 保留推断
+
+`satisfies` 在检查结构的同时保留原始推断：
+
+```ts
+const routes = [
+  { path: '/', label: '首页' },
+] satisfies Route[];
+```
+
+此时数组元素仍然保留具体的字面量类型，编辑器能给出更准确的提示。
+
+## 与 as const 的边界
+
+`as const` 解决的是只读和字面量收窄，不做结构校验；`satisfies` 负责校验，不改变运行时代码。两者可以组合使用，但不要用 `as` 绕过真正的类型错误。
+
+- 配置表优先用 satisfies
+- 需要只读字面量时再加 as const
+- 类型错误应该在构建时报出来，而不是运行时

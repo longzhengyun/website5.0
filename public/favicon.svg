@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#f7f5f0"/>
+  <ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(-20 32 32)" fill="none" stroke="#b23a2c" stroke-width="1.6"/>
+  <text x="24" y="44" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-size="36" fill="#171512">J</text>
+  <text x="43" y="46" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-style="italic" font-size="20" fill="#b23a2c">8</text>
+</svg>

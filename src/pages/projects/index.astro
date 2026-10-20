@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getPublishedProjects } from '../../lib/content';
+
+const projects = await getPublishedProjects();
+const inProgress = projects.filter((project) => project.data.status === '进行中').length;
+const description =
+  '佳瑞网的项目档案：包括正在进行的网站重构、Canvas 点阵地球实验和上一代内容站，记录目标、方案、取舍与结果。';
+---
+
+<BaseLayout section="projects" title="项目" description={description}>
+  <div class="page">
+    <div class="page-shell">
+      <header class="page-head">
+        <div>
+          <p class="page-kicker">PROJECTS / CASE FILES</p>
+          <h1 class="page-title" id="page-title" tabindex="-1">项目</h1>
+          <p class="page-desc">{description}</p>
+        </div>
+        <div class="page-head-side">
+          <p class="page-count">共 {projects.length} 个{inProgress > 0 ? ` · ${inProgress} 个进行中` : ''}</p>
+          <button
+            class="search-inline"
+            type="button"
+            data-open-search
+            aria-haspopup="dialog"
+            aria-controls="searchDialog"
+          >
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+            搜索项目与文章
+          </button>
+        </div>
+      </header>
+
+      <section aria-labelledby="project-list-title">
+        <h2 class="sr-only" id="project-list-title">项目列表</h2>
+        {
+          projects.length > 0 ? (
+            <div class="project-grid">
+              {projects.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state">
+              <p>项目正在整理中。</p>
+              <p><a href="/articles/">先读文章</a></p>
+            </div>
+          )
+        }
+      </section>
+    </div>
+  </div>
+</BaseLayout>

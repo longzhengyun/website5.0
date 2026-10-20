@@ -1,0 +1,71 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/articles/page/1/",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/page/1",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/category/:slug/page/1/",
+      "destination": "/articles/category/:slug/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/category/:slug/page/1",
+      "destination": "/articles/category/:slug/",
+      "permanent": true
+    },
+    {
+      "source": "/site",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/site/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/search",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/search/",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/login",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/login/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/resume",
+      "destination": "/about/",
+      "permanent": true
+    },
+    {
+      "source": "/resume/",
+      "destination": "/about/",
+      "permanent": true
+    },
+    {
+      "source": "/mine/:path*",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
+}

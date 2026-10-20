@@ -1,0 +1,129 @@
+/* 佳瑞网 5.0 · 轨道纸页 · Design tokens v1
+   Instrument Serif / JetBrains Mono are distributed under the SIL Open Font License 1.1. */
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-400-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  --bg: #f7f5f0;
+  --surface: #fcfbf8;
+  --surface-2: #f1eee7;
+  --surface-3: #e9e5dc;
+  --text: #171512;
+  --text-muted: #5f5a51;
+  --text-subtle: #8a847a;
+  --line: #e2ddd3;
+  --line-strong: #cdc6b9;
+  --accent: #b23a2c;
+  --accent-hover: #8e2b20;
+  --accent-soft: #f3e4df;
+  --on-accent: #fff8f5;
+  --code-bg: #f0ece4;
+  --code-border: #e0d9cc;
+  --selection: rgba(178, 58, 44, 0.16);
+  --overlay: rgba(23, 21, 18, 0.42);
+  --shadow-1: 0 1px 0 rgba(23, 21, 18, 0.04);
+  --shadow-2: 0 18px 50px -24px rgba(23, 21, 18, 0.28);
+
+  --font-display: "Instrument Serif", "Songti SC", "STSong", "Source Han Serif SC", "Noto Serif CJK SC", SimSun, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --text-display: clamp(2rem, 1.25rem + 4.4vw, 4.25rem);
+  --text-h1: clamp(2rem, 1.5rem + 2.2vw, 2.75rem);
+  --text-h2: clamp(1.5rem, 1.25rem + 1.1vw, 1.875rem);
+  --text-h3: clamp(1.1875rem, 1.1rem + 0.35vw, 1.3125rem);
+  --text-body: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem);
+  --text-ui: 0.9375rem;
+  --text-meta: 0.8125rem;
+  --text-label: 0.75rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --container: 75rem;
+  --measure: 45rem;
+  --list-measure: 52.5rem;
+  --page-pad: clamp(1.25rem, 4vw, 3rem);
+  --section-y: clamp(4rem, 2rem + 6vw, 7rem);
+  --header-h: 4rem;
+
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 8px;
+  --radius-4: 12px;
+  --radius-full: 999px;
+
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 480ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0, 0, 0, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #100f0d;
+  --surface: #171512;
+  --surface-2: #1f1b17;
+  --surface-3: #282219;
+  --text: #f2eee7;
+  --text-muted: #a9a299;
+  --text-subtle: #7d766b;
+  --line: #2b2620;
+  --line-strong: #3b342c;
+  --accent: #e07a64;
+  --accent-hover: #ee8d77;
+  --accent-soft: rgba(224, 122, 100, 0.14);
+  --on-accent: #1a0f0b;
+  --code-bg: #1b1814;
+  --code-border: #2e2822;
+  --selection: rgba(224, 122, 100, 0.24);
+  --overlay: rgba(0, 0, 0, 0.58);
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 18px 50px -24px rgba(0, 0, 0, 0.7);
+}

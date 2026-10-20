@@ -1,0 +1,34 @@
+---
+title: Pagefind 在静态站里的中文搜索
+slug: pagefind-chinese-search
+summary: Pagefind 在静态站里做中文搜索是否可用？本文用真实查询验证分词、子串匹配、索引体积与构建接入方式。
+category: 工程化
+tags: [Pagefind, 搜索, 静态站点]
+publishedAt: 2026-09-27
+---
+
+## 为什么选构建期索引
+
+静态站没有服务端，搜索只能在构建期生成索引、在浏览器里查询。Pagefind 把索引切成小块，按查询加载，首屏不必下载完整词表。
+
+对内容规模不大的个人站，这比自建搜索服务更合适。
+
+## 中文查询的实际表现
+
+Pagefind 对中文没有词干处理，但支持子串和词片段匹配。用「岛屿」「内容」「重设计」「静态页面」等查询测试，均能命中正文。
+
+```js
+const pagefind = await import('/pagefind/pagefind.js');
+await pagefind.init();
+const result = await pagefind.search('静态页面');
+```
+
+需要注意的是，索引质量取决于页面正文是否干净。用 `data-pagefind-body` 限定索引区域，可以避免导航和页脚污染结果。
+
+## 接入与边界
+
+索引在构建后生成，因此开发服务器里搜索不可用。搜索面板应在首次打开时才加载 Pagefind 运行时，加载失败时给出明确提示，而不是阻塞页面。
+
+- 中文查询用短词和组合词分别测试
+- 结果摘要限制长度，避免面板跳动
+- 内容规模化后复测召回率与索引体积

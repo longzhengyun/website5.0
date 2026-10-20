@@ -1,0 +1,206 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ProseScripts from '../../components/ProseScripts.astro';
+import Toc from '../../components/Toc.astro';
+import { SITE } from '../../config/site';
+import {
+  articlePath,
+  categoryPath,
+  formatDate,
+  formatDateLong,
+  getAdjacentArticles,
+  getCategorySlug,
+  getProfile,
+  getPublishedArticles,
+  getReadingTime,
+  getRelatedArticles,
+} from '../../lib/content';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return articles.map((article) => ({
+    params: { slug: article.data.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const [profile, articles] = await Promise.all([getProfile(), getPublishedArticles()]);
+const { Content, headings } = await render(article);
+const categorySlug = getCategorySlug(article.data.category);
+const readingTime = getReadingTime(article.body);
+const related = getRelatedArticles(articles, article, 3);
+const { prev, next } = getAdjacentArticles(articles, article);
+const site = Astro.site ?? new URL('https://jary8.com');
+const articleUrl = new URL(articlePath(article.data.slug), site).href;
+const coverUrl = article.data.cover
+  ? new URL(article.data.cover.src, site).href
+  : new URL(SITE.defaultOgImage, site).href;
+
+const breadcrumbItems = [
+  { label: '首页', href: '/' },
+  { label: '文章', href: '/articles/' },
+  ...(categorySlug
+    ? [{ label: article.data.category, href: categoryPath(categorySlug) }]
+    : []),
+  { label: article.data.title },
+];
+
+const blogPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: article.data.title,
+  description: article.data.summary,
+  datePublished: article.data.publishedAt.toISOString(),
+  dateModified: (article.data.updatedAt ?? article.data.publishedAt).toISOString(),
+  inLanguage: SITE.locale,
+  url: articleUrl,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+  image: coverUrl,
+  author: {
+    '@type': 'Person',
+    name: profile.data.name,
+    url: new URL('/', site).href,
+  },
+  publisher: { '@type': 'Organization', name: SITE.name },
+  ...(article.data.tags.length > 0 ? { keywords: article.data.tags.join(', ') } : {}),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: item.href ? new URL(item.href, site).href : articleUrl,
+  })),
+};
+---
+
+<BaseLayout
+  section="articles"
+  title={article.data.title}
+  description={article.data.summary}
+  ogType="article"
+  ogImage={article.data.cover?.src}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="page">
+    <div class="page-shell">
+      <Breadcrumbs items={breadcrumbItems} />
+
+      <div class="article-layout">
+        <div class="article-main">
+          <article data-pagefind-body data-pagefind-meta="type:文章">
+            <header class="article-header">
+              <div class="article-kicker">
+                {categorySlug && (
+                  <a href={categoryPath(categorySlug)}>{article.data.category}</a>
+                )}
+                <span aria-hidden="true">·</span>
+                <time
+                  datetime={article.data.publishedAt.toISOString().slice(0, 10)}
+                  data-pagefind-meta={`date:${formatDate(article.data.publishedAt)}`}
+                >
+                  {formatDateLong(article.data.publishedAt)}
+                </time>
+                <span aria-hidden="true">·</span>
+                <span>{readingTime} min read</span>
+                {article.data.updatedAt && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>更新于 {formatDate(article.data.updatedAt)}</span>
+                  </>
+                )}
+              </div>
+
+              <h1 class="article-title" data-pagefind-meta="title">{article.data.title}</h1>
+              <p class="article-summary">{article.data.summary}</p>
+
+              {article.data.cover && (
+                <div class="article-cover">
+                  <Image
+                    src={article.data.cover}
+                    alt={`${article.data.title} 封面`}
+                    width={article.data.cover.width}
+                    height={article.data.cover.height}
+                    widths={[640, 960, 1280]}
+                    sizes="(min-width: 1280px) 45rem, 100vw"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </div>
+              )}
+            </header>
+
+            <Toc headings={headings} variant="mobile" />
+
+            <div class="prose" data-prose-content>
+              <Content />
+            </div>
+
+            {article.data.tags.length > 0 && (
+              <div class="article-tags-block">
+                <p class="article-tags-label">标签</p>
+                <ul class="article-tags" aria-label="文章标签">
+                  {article.data.tags.map((tag) => <li>{tag}</li>)}
+                </ul>
+              </div>
+            )}
+          </article>
+
+          {(prev || next) && (
+            <nav class="article-adjacent" aria-label="文章导航">
+              {prev ? (
+                <a class="adjacent-link" href={articlePath(prev.data.slug)} rel="prev">
+                  <span class="adjacent-label">上一篇</span>
+                  <span class="adjacent-title">{prev.data.title}</span>
+                </a>
+              ) : (
+                <span class="adjacent-link" aria-hidden="true"></span>
+              )}
+              {next ? (
+                <a class="adjacent-link" href={articlePath(next.data.slug)} rel="next">
+                  <span class="adjacent-label">下一篇</span>
+                  <span class="adjacent-title">{next.data.title}</span>
+                </a>
+              ) : (
+                <span class="adjacent-link" aria-hidden="true"></span>
+              )}
+            </nav>
+          )}
+
+          {related.length > 0 && (
+            <section class="related" aria-labelledby="related-title">
+              <h2 class="related-title" id="related-title">相关文章</h2>
+              <ul class="related-list">
+                {related.map((item) => (
+                  <li>
+                    <a href={articlePath(item.data.slug)}>
+                      <span>{item.data.title}</span>
+                      <time datetime={item.data.publishedAt.toISOString().slice(0, 10)}>
+                        {formatDate(item.data.publishedAt)}
+                      </time>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+
+        <Toc headings={headings} variant="desktop" />
+      </div>
+    </div>
+  </div>
+
+  <ProseScripts />
+</BaseLayout>

@@ -1,0 +1,163 @@
+---
+import type { ProfileEntry } from '../lib/content';
+import { MAIN_NAV, SITE } from '../config/site';
+
+interface Props {
+  section?: 'home' | 'articles' | 'projects' | 'about';
+  profile: ProfileEntry;
+}
+
+const { section, profile } = Astro.props;
+const isCurrent = (itemSection: string) => itemSection === section;
+---
+
+<header class="site-header">
+  <div class="page-shell header-inner">
+    <a class="brand" href="/" aria-label={`${SITE.name} ${SITE.nameEn} 首页`}>
+      <span class="brand-word">Jary</span><span class="brand-eight">8</span>
+      <span class="brand-cn">佳瑞网</span>
+    </a>
+
+    <nav class="main-nav" aria-label="主导航">
+      {
+        MAIN_NAV.map((item) => (
+          <a
+            class="nav-link"
+            href={item.href}
+            aria-current={isCurrent(item.section) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header-tools">
+      <button
+        class="search-trigger"
+        type="button"
+        data-open-search
+        aria-label="打开搜索"
+        aria-haspopup="dialog"
+        aria-controls="searchDialog"
+      >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+        <span class="search-label">搜索</span>
+        <kbd class="kbd">/</kbd>
+      </button>
+      <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="切换到深色模式">
+        <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path></svg>
+        <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"></path></svg>
+      </button>
+      <button
+        class="icon-btn menu-trigger"
+        type="button"
+        data-open-nav
+        aria-label="打开菜单"
+        aria-expanded="false"
+        aria-controls="mobileNav"
+      >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog id="mobileNav" class="mobile-nav" aria-labelledby="mobileNavTitle">
+  <div class="mobile-nav-inner">
+    <div class="mobile-nav-top">
+      <p id="mobileNavTitle" class="brand"><span class="brand-word">Jary</span><span class="brand-eight">8</span><span class="brand-cn">佳瑞网</span></p>
+      <button class="icon-btn mobile-nav-close" type="button" data-close-nav aria-label="关闭菜单">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+      </button>
+    </div>
+    <nav class="mobile-nav-links" aria-label="移动端主导航">
+      {
+        MAIN_NAV.map((item, index) => (
+          <a
+            class="mobile-nav-link"
+            href={item.href}
+            aria-current={isCurrent(item.section) ? 'page' : undefined}
+          >
+            <span class="mobile-nav-index" aria-hidden="true">0{index + 1}</span>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="mobile-nav-foot">
+      <a href={profile.data.github} target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only">（新窗口）</span></a>
+      <span aria-hidden="true"> · </span>
+      <a href="/rss.xml">RSS</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const root = document.documentElement;
+  const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function storedTheme(): string | null {
+    try {
+      return localStorage.getItem('jary-theme');
+    } catch {
+      return null;
+    }
+  }
+
+  function applyTheme(theme: 'light' | 'dark') {
+    root.dataset.theme = theme;
+    if (themeMeta) themeMeta.content = theme === 'dark' ? '#100f0d' : '#f7f5f0';
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-label', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+      themeToggle.setAttribute('title', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+    }
+  }
+
+  applyTheme(root.dataset.theme === 'dark' ? 'dark' : 'light');
+
+  themeToggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try {
+      localStorage.setItem('jary-theme', next);
+    } catch {
+      /* 隐私模式下不持久化，本次会话仍然生效 */
+    }
+  });
+
+  systemQuery.addEventListener('change', (event) => {
+    if (storedTheme()) return;
+    applyTheme(event.matches ? 'dark' : 'light');
+  });
+
+  const mobileNav = document.querySelector<HTMLDialogElement>('#mobileNav');
+  const openNav = document.querySelector<HTMLButtonElement>('[data-open-nav]');
+  const closeNav = document.querySelector<HTMLButtonElement>('[data-close-nav]');
+
+  function setNavExpanded(expanded: boolean) {
+    openNav?.setAttribute('aria-expanded', String(expanded));
+  }
+
+  openNav?.addEventListener('click', () => {
+    if (!mobileNav) return;
+    mobileNav.showModal();
+    setNavExpanded(true);
+    closeNav?.focus();
+  });
+
+  closeNav?.addEventListener('click', () => mobileNav?.close());
+
+  mobileNav?.addEventListener('close', () => {
+    setNavExpanded(false);
+    openNav?.focus();
+  });
+
+  mobileNav?.addEventListener('click', (event) => {
+    if (event.target === mobileNav) mobileNav.close();
+  });
+</script>

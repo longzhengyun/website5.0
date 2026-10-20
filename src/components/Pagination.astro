@@ -1,0 +1,62 @@
+---
+import { articleListPath, getPaginationItems } from '../lib/content';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  categorySlug?: string;
+}
+
+const { currentPage, totalPages, categorySlug } = Astro.props;
+const pagePath = (page: number) => articleListPath(page, categorySlug);
+const items = getPaginationItems(currentPage, totalPages);
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="文章分页" data-pagination>
+      {currentPage > 1 ? (
+        <a class="page-link" href={pagePath(currentPage - 1)} rel="prev" data-page-link>
+          <span aria-hidden="true">←</span>
+          <span class="sr-only">上一页</span>
+        </a>
+      ) : (
+        <span class="page-link is-disabled" aria-disabled="true">
+          <span aria-hidden="true">←</span>
+          <span class="sr-only">上一页（不可用）</span>
+        </span>
+      )}
+
+      <div class="pagination-nav">
+        {items.map((item) =>
+          item === 'ellipsis' ? (
+            <span class="pagination-ellipsis" aria-hidden="true">…</span>
+          ) : item === currentPage ? (
+            <span class="page-link" aria-current="page">
+              {item}
+              <span class="sr-only">（当前页）</span>
+            </span>
+          ) : (
+            <a class="page-link" href={pagePath(item)} data-page-link>
+              {item}
+            </a>
+          ),
+        )}
+      </div>
+
+      {currentPage < totalPages ? (
+        <a class="page-link" href={pagePath(currentPage + 1)} rel="next" data-page-link>
+          <span aria-hidden="true">→</span>
+          <span class="sr-only">下一页</span>
+        </a>
+      ) : (
+        <span class="page-link is-disabled" aria-disabled="true">
+          <span aria-hidden="true">→</span>
+          <span class="sr-only">下一页（不可用）</span>
+        </span>
+      )}
+
+      <p class="pagination-note">第 {currentPage} / {totalPages} 页</p>
+    </nav>
+  )
+}

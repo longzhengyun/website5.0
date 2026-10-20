@@ -1,0 +1,29 @@
+---
+title: 静态站点的旧链接怎么处理
+slug: static-site-redirects
+summary: 静态托管没有服务端路由，旧链接怎么处理？本文比较 _redirects、vercel.json、meta 刷新与客户端跳转的适用场景。
+category: 杂谈
+tags: [静态站点, SEO, 重定向]
+publishedAt: 2026-08-16
+---
+
+## 静态托管也要讲重定向
+
+站点重构后，旧 URL 不应直接 404。静态托管虽然没有应用服务，但多数平台提供重定向配置：Cloudflare Pages 用 `_redirects`，Vercel 用 `vercel.json`。
+
+能配置 301 的路径，优先在平台层解决，搜索引擎和浏览器都能正确接收。
+
+## 查询串是例外
+
+`/articles?category=javascript` 这类查询串通常不参与静态文件匹配，平台重定向规则也未必支持。可行的做法是让列表页在客户端读取参数，然后 `location.replace` 到静态分类路由。
+
+```js
+const category = new URLSearchParams(location.search).get('category');
+if (category) location.replace(`/articles/category/${category}/`);
+```
+
+## 迁移映射表
+
+带 ID 的旧文章链接需要映射表，构建时根据 `legacyId` 生成重定向规则。没有映射时至少重定向到列表页，避免用户落到错误页。
+
+Meta 刷新只适合兜底，不能替代 301；它会影响体验，也不利于 SEO。重定向策略应该在内容迁移前确定，而不是上线后补。

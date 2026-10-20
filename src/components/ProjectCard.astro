@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import type { ProjectEntry } from '../lib/content';
+import { projectPath } from '../lib/content';
+
+interface Props {
+  project: ProjectEntry;
+}
+
+const { project } = Astro.props;
+const cover = project.data.cover;
+const initial = Array.from(project.data.title)[0] ?? 'J';
+const stack = project.data.stack.slice(0, 3);
+const extraStack = project.data.stack.length - stack.length;
+const links = project.data.links;
+---
+
+<article class="project-card">
+  <div class="project-cover">
+    <div class="project-cover-placeholder" aria-hidden="true">
+      <span class="project-cover-letter">{initial}</span>
+      <span class="project-cover-label">JARY / PROJECT</span>
+    </div>
+    {
+      cover && (
+        <Image
+          class="js-cover-img"
+          src={cover}
+          alt=""
+          width={cover.width}
+          height={cover.height}
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div class="project-body">
+    <p class="project-period">
+      <span>{project.data.period}</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>{project.data.type}</span>
+    </p>
+    <h3 class="project-title">
+      <a href={projectPath(project.data.slug)}>{project.data.title}</a>
+    </h3>
+    <p class="project-summary">{project.data.summary}</p>
+    <ul class="stack" aria-label="技术栈">
+      {stack.map((item) => <li>{item}</li>)}
+      {extraStack > 0 && <li aria-label={`还有 ${extraStack} 项技术`}>+{extraStack}</li>}
+    </ul>
+    <div class="project-links">
+      <a href={projectPath(project.data.slug)}>
+        查看项目
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"></path></svg>
+      </a>
+      {
+        links.map((link) => (
+          <a href={link.url} target="_blank" rel="noopener noreferrer">
+            {link.label}
+            <span class="external-mark" aria-hidden="true">↗</span>
+            <span class="sr-only">（新窗口）</span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</article>

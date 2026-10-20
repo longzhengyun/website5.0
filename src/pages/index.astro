@@ -1,0 +1,237 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import {
+  getFeaturedArticles,
+  getFeaturedProjects,
+  getProfile,
+  getPublishedArticles,
+  getPublishedProjects,
+} from '../lib/content';
+import { getLinkGroups } from '../lib/data';
+import { SITE } from '../config/site';
+
+const [profile, articles, projects] = await Promise.all([
+  getProfile(),
+  getPublishedArticles(),
+  getPublishedProjects(),
+]);
+
+const featuredArticles = getFeaturedArticles(articles, 3);
+const featuredProjects = getFeaturedProjects(projects, 2);
+const linkGroups = getLinkGroups(6);
+const linkCount = linkGroups.reduce((total, group) => total + group.items.length, 0);
+
+const meta = profile.data.siteMeta;
+const timezone = profile.data.timezone ?? 'UTC+8';
+const location = [profile.data.city, timezone].filter(Boolean).join(' · ');
+const career = meta.careerStartYear ? `${meta.careerStartYear} 入行` : undefined;
+
+const modules = [
+  { key: 'articles', title: '精选文章', label: 'WRITING', hidden: featuredArticles.length === 0, number: '' },
+  { key: 'projects', title: '精选项目', label: 'PROJECTS', hidden: featuredProjects.length === 0, number: '' },
+  { key: 'links', title: '常去', label: 'LINKS', hidden: linkGroups.length === 0, number: '' },
+];
+let visibleCount = 0;
+for (const module of modules) {
+  if (!module.hidden) {
+    visibleCount += 1;
+    module.number = String(visibleCount).padStart(2, '0');
+  }
+}
+const moduleNumber = (key: string) => modules.find((item) => item.key === key)?.number ?? '';
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: Astro.site?.href,
+  description: SITE.description,
+  inLanguage: SITE.locale,
+};
+---
+
+<BaseLayout section="home">
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="page-shell">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="hero-meta">
+            <span>PORTFOLIO / JOURNAL</span>
+            <span>
+              SITE SINCE {meta.startedYear}{career ? ` · ${career}` : ''}
+            </span>
+          </div>
+          <p class="hero-eyebrow"><span class="accent-sq" aria-hidden="true"></span>{profile.data.headline}</p>
+          <h1 class="hero-title" id="hero-title">
+            <span class="line">把网页做成</span>
+            <span class="line">长期可用的作品<span class="period">。</span></span>
+          </h1>
+          <p class="hero-sub">{profile.data.shortBio}</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/projects/">
+              查看项目
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"></path></svg>
+            </a>
+            <a class="btn btn-ghost" href="/articles/">阅读文章</a>
+          </div>
+          <dl class="hero-facts">
+            <div class="hero-fact">
+              <dt>BASE</dt>
+              <dd>{location}</dd>
+            </div>
+            <div class="hero-fact">
+              <dt>FOCUS</dt>
+              <dd>界面 / 性能 / 可维护性</dd>
+            </div>
+            <div class="hero-fact">
+              <dt>SINCE</dt>
+              <dd>{meta.startedYear}{meta.careerStartYear ? ` · ${meta.careerStartYear} 入行` : ''}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="hero-visual">
+          <div class="globe-frame">
+            <img
+              src="/images/globe-poster.avif"
+              width="640"
+              height="640"
+              alt=""
+              decoding="async"
+              fetchpriority="high"
+            />
+          </div>
+          <p class="globe-caption">
+            <span>ORBITAL / 24H</span>
+            <span>{timezone}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    featuredArticles.length > 0 && (
+      <section class="section" aria-labelledby="writing-title">
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <div class="section-label">
+                <span class="num">{moduleNumber('articles')}</span>
+                <span>WRITING</span>
+              </div>
+              <h2 class="section-title" id="writing-title">精选文章</h2>
+            </div>
+            <a class="text-link" href="/articles/">
+              查看全部文章 <span class="count">/ {articles.length}</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
+            </a>
+          </div>
+          <PostList articles={featuredArticles} />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    featuredProjects.length > 0 && (
+      <section class="section" aria-labelledby="projects-title">
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <div class="section-label">
+                <span class="num">{moduleNumber('projects')}</span>
+                <span>PROJECTS</span>
+              </div>
+              <h2 class="section-title" id="projects-title">精选项目</h2>
+            </div>
+            <a class="text-link" href="/projects/">
+              查看全部项目 <span class="count">/ {projects.length}</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
+            </a>
+          </div>
+          <div class="project-grid">
+            {featuredProjects.map((project) => <ProjectCard project={project} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    linkGroups.length > 0 && (
+      <section class="section" id="links" aria-labelledby="links-title">
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <div class="section-label">
+                <span class="num">{moduleNumber('links')}</span>
+                <span>LINKS</span>
+              </div>
+              <h2 class="section-title" id="links-title">常去</h2>
+            </div>
+            <span class="page-count">/ {linkCount}</span>
+          </div>
+          <div class="links-grid">
+            {linkGroups.map((group) => (
+              <div class="link-group">
+                <h3 class="link-group-title">
+                  {group.label}
+                  <span>{group.items.length}</span>
+                </h3>
+                <ul class="link-list">
+                  {group.items.map((link) => (
+                    <li class="link-item">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        <span>
+                          <span class="link-title">{link.title}</span>
+                          <span class="link-desc">{link.description}</span>
+                        </span>
+                        <span class="external-mark" aria-hidden="true">↗</span>
+                        <span class="sr-only">（新窗口）</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="contact-title">
+    <div class="section-inner">
+      <div class="contact">
+        <div>
+          <div class="section-label"><span>CONTACT</span></div>
+          <h2 class="contact-title" id="contact-title">保持联系</h2>
+        </div>
+        <div class="contact-links">
+          {
+            profile.data.email ? (
+              <a href={`mailto:${profile.data.email}`}>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+                {profile.data.email}
+              </a>
+            ) : (
+              <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.9c0-1.1.1-1.6-.5-2.3 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.4 3.1 5.4 3.4 5.4 3.4a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.8c0 4.6 2.7 5.7 5.5 6-.6.7-.6 1.4-.5 2.3V22"></path></svg>
+                GitHub<span class="sr-only">（新窗口）</span>
+              </a>
+            )
+          }
+          <a href="/rss.xml">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h.01M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"></path></svg>
+            RSS 订阅
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

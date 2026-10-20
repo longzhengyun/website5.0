@@ -1,0 +1,40 @@
+---
+title: 用级联层收住样式优先级
+slug: css-cascade-layers
+summary: 级联层让样式优先级变得可预测。本文用 tokens、基础样式与组件样式三层，说明如何避免 !important 与选择器战争。
+category: HTML/CSS
+tags: [CSS, 级联层, 架构]
+publishedAt: 2026-09-06
+---
+
+## 优先级为什么会失控
+
+项目变大后，样式冲突往往不是写错，而是没有明确的层级。后来者为了提高优先级不断叠加选择器，最后只能靠 `!important` 收场。
+
+级联层把「谁覆盖谁」从选择器细节里拿出来，变成显式的顺序。
+
+## 三层结构
+
+一个够用的起点是 tokens、base 和 components：
+
+```css
+@layer tokens, base, components;
+
+@layer tokens {
+  :root { --accent: #b23a2c; }
+}
+
+@layer components {
+  .button { background: var(--accent); }
+}
+```
+
+层与层之间的顺序固定，层内的选择器再复杂也不会越级。
+
+## 与工具类共存
+
+工具类可以放在最高层，让局部覆盖保持直观；重置和基础排版放在最低层，避免影响组件。关键是团队要知道层的顺序，而不是每次遇到冲突就加权重。
+
+- 层名少而稳定，不要为每个组件建层
+- 第三方样式放进独立层，避免污染
+- 迁移旧样式时先包层，再逐步清理

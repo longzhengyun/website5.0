@@ -1,0 +1,37 @@
+[
+  {
+    "version": "V5.0",
+    "date": "2026.10",
+    "title": "重设计启动",
+    "summary": "从 Next.js 半成品迁移到 Astro 静态站，重建信息架构、视觉与技术底座。",
+    "tech": ["Astro", "Tailwind CSS", "TypeScript", "MDX"]
+  },
+  {
+    "version": "V4.0",
+    "date": "2020.06",
+    "title": "Nuxt 2 内容站",
+    "summary": "Nuxt 2 + Koa + SQLite 版本上线，形成文章、案例、收藏与个人资料的完整内容结构。",
+    "tech": ["Nuxt 2", "Vue", "Koa", "SQLite"]
+  },
+  {
+    "version": "V3.0",
+    "date": "2016.05",
+    "title": "AngularJS 前后端",
+    "summary": "AngularJS + PHP 版本，开始以文章与作品集的方式记录前端实践。",
+    "tech": ["AngularJS", "PHP"]
+  },
+  {
+    "version": "V2.0",
+    "date": "2012.04",
+    "title": "启用 jary8.com",
+    "summary": "站点启用 jary8.com 独立域名。",
+    "tech": []
+  },
+  {
+    "version": "V1.0",
+    "date": "2008.04",
+    "title": "第一版上线",
+    "summary": "佳瑞网第一版上线，个人站点开始以独立页面对外展示。",
+    "tech": []
+  }
+]

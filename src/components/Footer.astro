@@ -1,0 +1,80 @@
+---
+import { MAIN_NAV } from '../config/site';
+import { getLinkGroups } from '../lib/data';
+import type { ProfileEntry } from '../lib/content';
+
+interface Props {
+  profile: ProfileEntry;
+}
+
+const { profile } = Astro.props;
+const meta = profile.data.siteMeta;
+const hasLinks = getLinkGroups().length > 0;
+const currentYear = new Date().getFullYear();
+const yearRange =
+  meta.startedYear === currentYear ? `${currentYear}` : `${meta.startedYear}–${currentYear}`;
+const domain = meta.siteDomain;
+const domainHref = domain
+  ? domain.startsWith('http')
+    ? domain
+    : `https://${domain}`
+  : undefined;
+---
+
+<footer class="site-footer">
+  <div class="page-shell">
+    <div class="footer-top">
+      <div>
+        <p class="footer-brand">
+          <span>Jary<span class="brand-eight">8</span></span>
+          <span class="brand-cn">佳瑞网</span>
+        </p>
+        <p class="footer-tagline">
+          记录 Web 前端、界面设计与长期维护。内容以文件驱动，页面保持静态与轻量。
+        </p>
+      </div>
+      <nav class="footer-nav" aria-label="页脚导航">
+        {
+          MAIN_NAV.map((item) => (
+            <a href={item.href}>{item.label}</a>
+          ))
+        }
+        {hasLinks && <a href="/#links">常去</a>}
+        <a href="/rss.xml">RSS</a>
+        <a href="/sitemap.xml">站点地图</a>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {yearRange} {meta.copyrightName} · SITE SINCE {meta.startedYear}</p>
+      <div class="footer-meta">
+        <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
+          GitHub<span class="sr-only">（新窗口）</span>
+        </a>
+        {
+          profile.data.email && (
+            <a href={`mailto:${profile.data.email}`}>{profile.data.email}</a>
+          )
+        }
+        {
+          domainHref && domain && (
+            <a href={domainHref} target="_blank" rel="noopener noreferrer">
+              {domain}<span class="sr-only">（新窗口）</span>
+            </a>
+          )
+        }
+        {
+          meta.icp && (
+            <a
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {meta.icp}<span class="sr-only">（新窗口）</span>
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</footer>

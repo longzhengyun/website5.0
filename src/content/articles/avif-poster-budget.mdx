@@ -1,0 +1,40 @@
+---
+title: 把首屏海报压进 45KB
+slug: avif-poster-budget
+summary: 把首屏海报压到 45KB 以内：从 Canvas 截图、sharp 转 AVIF 到质量与尺寸的取舍，给出一条可复现的构建管线。
+category: 工程化
+tags: [AVIF, sharp, 性能]
+publishedAt: 2026-09-13
+---
+
+## 预算先于工具
+
+移动端不加载 3D 运行时，只加载一张静态海报。海报必须足够清晰，又不能拖慢 LCP，于是先定一个硬预算：45KB 以内。
+
+尺寸从 640 × 640 起步，质量从 50 往下试。格式选 AVIF，浏览器支持已经足够覆盖目标范围。
+
+## 从 Canvas 截到 AVIF
+
+海报不是手绘素材，而是运行时画面的定格。用无头浏览器打开桌面版地球，等待一帧稳定后导出 PNG：
+
+```js
+const dataUrl = await page.evaluate(() => {
+  const canvas = document.querySelector('.globe-canvas');
+  return canvas.toDataURL('image/png');
+});
+```
+
+再用 sharp 缩放、压缩：
+
+```js
+await sharp(pngBuffer)
+  .resize(640, 640)
+  .avif({ quality: 48, effort: 6 })
+  .toFile('public/images/globe-poster.avif');
+```
+
+## 质量与体积的取舍
+
+质量 48、640 像素时文件约 43KB，点阵边缘仍然干净。继续降质量会先损失小点，再出现色带；继续加尺寸则收益有限。
+
+构建管线应把海报生成当作可重复步骤，而不是一次性手工导出。这样视觉调整后可以快速重跑并核对体积。

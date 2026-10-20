@@ -1,0 +1,216 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ProseScripts from '../../components/ProseScripts.astro';
+import { SITE } from '../../config/site';
+import {
+  getAdjacentProjects,
+  getProfile,
+  getPublishedProjects,
+  projectPath,
+} from '../../lib/content';
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.map((project) => ({
+    params: { slug: project.data.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const [profile, projects] = await Promise.all([getProfile(), getPublishedProjects()]);
+const { Content } = await render(project);
+const { prev, next } = getAdjacentProjects(projects, project);
+const gallery = project.data.gallery ?? [];
+const site = Astro.site ?? new URL('https://jary8.com');
+const projectUrl = new URL(projectPath(project.data.slug), site).href;
+const coverUrl = project.data.cover
+  ? new URL(project.data.cover.src, site).href
+  : new URL(SITE.defaultOgImage, site).href;
+
+const breadcrumbItems = [
+  { label: '首页', href: '/' },
+  { label: '项目', href: '/projects/' },
+  { label: project.data.title },
+];
+
+const creativeWorkSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.data.title,
+  description: project.data.summary,
+  url: projectUrl,
+  inLanguage: SITE.locale,
+  image: coverUrl,
+  keywords: project.data.stack.join(', '),
+  creator: {
+    '@type': 'Person',
+    name: profile.data.name,
+    url: new URL('/', site).href,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: item.href ? new URL(item.href, site).href : projectUrl,
+  })),
+};
+---
+
+<BaseLayout
+  section="projects"
+  title={project.data.title}
+  description={project.data.summary}
+  ogImage={project.data.cover?.src}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(creativeWorkSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="page">
+    <div class="page-shell">
+      <Breadcrumbs items={breadcrumbItems} />
+
+      <article data-pagefind-body data-pagefind-meta="type:项目">
+        <header class="project-header">
+          <p class="project-kicker">
+            <span>{project.data.type}</span>
+            <span aria-hidden="true">·</span>
+            <span>{project.data.status}</span>
+          </p>
+          <h1 class="project-detail-title" data-pagefind-meta="title">{project.data.title}</h1>
+          <p class="project-detail-summary">{project.data.summary}</p>
+          <div class="project-header-meta">
+            <span><span class="label">PERIOD</span>{project.data.period}</span>
+            <span><span class="label">ROLE</span>{project.data.role}</span>
+            <span><span class="label">STACK</span>{project.data.stack.length} 项</span>
+          </div>
+        </header>
+
+        <div class="project-detail-layout">
+          <aside class="project-aside" aria-labelledby="project-facts-title">
+            <h2 class="project-aside-title" id="project-facts-title">项目信息</h2>
+            <dl class="project-facts">
+              <div class="project-fact">
+                <dt>周期</dt>
+                <dd>{project.data.period}</dd>
+              </div>
+              <div class="project-fact">
+                <dt>角色</dt>
+                <dd>{project.data.role}</dd>
+              </div>
+              <div class="project-fact">
+                <dt>类型</dt>
+                <dd>{project.data.type}</dd>
+              </div>
+              <div class="project-fact">
+                <dt>状态</dt>
+                <dd>{project.data.status}</dd>
+              </div>
+              <div class="project-fact">
+                <dt>技术栈</dt>
+                <dd>
+                  <ul class="stack" aria-label="技术栈">
+                    {project.data.stack.map((item) => <li>{item}</li>)}
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="project-external">
+              <h3 class="project-external-title">链接</h3>
+              <ul>
+                {
+                  project.data.links.map((link) => (
+                    <li>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                        {link.label}
+                        <span class="external-mark" aria-hidden="true">↗</span>
+                        <span class="sr-only">（新窗口）</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </aside>
+
+          <div class="project-main">
+            {project.data.cover && (
+              <div class="project-detail-cover">
+                <Image
+                  src={project.data.cover}
+                  alt={`${project.data.title} 封面`}
+                  width={project.data.cover.width}
+                  height={project.data.cover.height}
+                  widths={[640, 960, 1280]}
+                  sizes="(min-width: 1280px) 45rem, 100vw"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            )}
+
+            <div class="prose" data-prose-content>
+              <Content />
+            </div>
+
+            {gallery.length > 0 && (
+              <section class="project-gallery" aria-labelledby="project-gallery-title">
+                <h2 class="project-gallery-title" id="project-gallery-title">界面截图</h2>
+                <div class="project-gallery-grid">
+                  {gallery.map((image, index) => (
+                    <figure>
+                      <Image
+                        src={image}
+                        alt={`${project.data.title} 截图 ${index + 1}`}
+                        width={image.width}
+                        height={image.height}
+                        widths={[480, 800, 1200]}
+                        sizes="(min-width: 40rem) 50vw, 100vw"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </figure>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+      </article>
+
+      {(prev || next) && (
+        <nav class="article-adjacent" aria-label="项目导航">
+          {prev ? (
+            <a class="adjacent-link" href={projectPath(prev.data.slug)} rel="prev">
+              <span class="adjacent-label">上一个项目</span>
+              <span class="adjacent-title">{prev.data.title}</span>
+            </a>
+          ) : (
+            <span class="adjacent-link" aria-hidden="true"></span>
+          )}
+          {next ? (
+            <a class="adjacent-link" href={projectPath(next.data.slug)} rel="next">
+              <span class="adjacent-label">下一个项目</span>
+              <span class="adjacent-title">{next.data.title}</span>
+            </a>
+          ) : (
+            <span class="adjacent-link" aria-hidden="true"></span>
+          )}
+        </nav>
+      )}
+    </div>
+  </div>
+
+  <ProseScripts />
+</BaseLayout>

@@ -1,0 +1,57 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  variant?: 'desktop' | 'mobile';
+}
+
+const { headings, variant = 'desktop' } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{
+  items.length >= 2 && variant === 'desktop' && (
+    <aside class="toc" aria-labelledby="tocTitle">
+      <p class="toc-title" id="tocTitle">本文目录</p>
+      <ol class="toc-list">
+        {items.map((heading) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class={heading.depth === 3 ? 'depth-3' : undefined}
+              data-toc-link
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  )
+}
+
+{
+  items.length >= 2 && variant === 'mobile' && (
+    <details class="toc-mobile">
+      <summary>本文目录（{items.length}）</summary>
+      <ol class="toc-list">
+        {items.map((heading) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class={heading.depth === 3 ? 'depth-3' : undefined}
+              data-toc-link
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )
+}

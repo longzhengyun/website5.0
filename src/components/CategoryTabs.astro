@@ -1,0 +1,30 @@
+---
+import type { ArticleEntry } from '../lib/content';
+import { categoryPath, getCategoriesInUse } from '../lib/content';
+
+interface Props {
+  articles: ArticleEntry[];
+  activeSlug?: string;
+}
+
+const { articles, activeSlug } = Astro.props;
+const categories = getCategoriesInUse(articles);
+---
+
+<nav class="category-tabs" aria-label="文章分类">
+  <a class="tab" href="/articles/" aria-current={!activeSlug ? 'page' : undefined}>
+    全部<span class="tab-count">{articles.length}</span>
+  </a>
+  {
+    categories.map((category) => (
+      <a
+        class="tab"
+        href={categoryPath(category.slug)}
+        aria-current={activeSlug === category.slug ? 'page' : undefined}
+      >
+        {category.label}
+        <span class="tab-count">{category.count}</span>
+      </a>
+    ))
+  }
+</nav>

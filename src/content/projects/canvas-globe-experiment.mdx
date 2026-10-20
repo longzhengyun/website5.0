@@ -1,0 +1,36 @@
+---
+title: 点阵地球实验
+slug: canvas-globe-experiment
+summary: 为首页设计的 Canvas 2D 点阵地球：用 Fibonacci 球面采样和朱砂轨道替代 Three.js，以极小运行时控制首屏成本。
+type: 案例演示
+status: 已完成
+period: "2026.10"
+role: 独立开发
+stack: [Canvas 2D, TypeScript, Astro]
+links:
+  - label: GitHub 主页
+    url: https://github.com/longzhengyun
+featured: true
+order: 2
+---
+
+## 背景
+
+首页需要一个记忆点：墨色点阵球体与朱砂轨道。最初方案是 Three.js，但视觉目标并不需要真实材质、光照或星空。
+
+## 目标
+
+- 点阵球体与轨道线，纯装饰、不承载信息
+- 运行时尽量小，不影响首屏 LCP 与 CLS
+- 移动端、省流和减少动态偏好下只显示静态海报
+- 加载失败时保留海报，不出现错误界面
+
+## 方案
+
+用 Fibonacci 螺旋在球面上均匀采样，把三维点投影到二维 Canvas；每帧只更新旋转角，并按深度调整透明度和点径。DPR 上限 1.5，页面隐藏或离开视口时暂停。
+
+运行时只在桌面、精细指针、非省流、内存充足且未开启减少动态时加载。海报由无头浏览器截取首帧，再用 sharp 压成 640 × 640 的 AVIF。
+
+## 结果
+
+Canvas 运行时约 2.1KB gzip，静态海报约 43KB。桌面页面没有 React 或 Three.js，移动端运行时请求为零。
