@@ -214,18 +214,17 @@ const websiteSchema = {
         </div>
         <div class="contact-links">
           {
-            profile.data.email ? (
+            profile.data.showEmail && (
               <a href={`mailto:${profile.data.email}`}>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
                 {profile.data.email}
               </a>
-            ) : (
-              <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.9c0-1.1.1-1.6-.5-2.3 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.4 3.1 5.4 3.4 5.4 3.4a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.8c0 4.6 2.7 5.7 5.5 6-.6.7-.6 1.4-.5 2.3V22"></path></svg>
-                GitHub<span class="sr-only">（新窗口）</span>
-              </a>
             )
           }
+          <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.5-4-2.5-6-3m12 6v-3.9c0-1.1.1-1.6-.5-2.3 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.4 3.1 5.4 3.4 5.4 3.4a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.8c0 4.6 2.7 5.7 5.5 6-.6.7-.6 1.4-.5 2.3V22"></path></svg>
+            GitHub<span class="sr-only">（新窗口）</span>
+          </a>
           <a href="/rss.xml">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h.01M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"></path></svg>
             RSS 订阅

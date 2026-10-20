@@ -37,25 +37,22 @@ const categorySlugs = CATEGORIES.map((category) => category.slug);
         var pageRaw = params.get('page');
         var base = '/articles/';
 
-        if (category && slugs.indexOf(category) !== -1) {
+        if (category !== null && category !== '') {
+          if (slugs.indexOf(category) === -1) {
+            window.location.replace(base + window.location.hash);
+            return;
+          }
           base = '/articles/category/' + category + '/';
         }
 
-        var page = 1;
-        var pageValid = true;
-        if (pageRaw !== null) {
-          if (!/^[1-9][0-9]*$/.test(pageRaw)) {
-            pageValid = false;
-          } else {
-            page = parseInt(pageRaw, 10);
-          }
-        }
-
-        if (pageValid) {
-          var target = page <= 1 ? base : base + 'page/' + page + '/';
-          window.location.replace(target + window.location.hash);
+        if (pageRaw !== null && !/^[1-9][0-9]*$/.test(pageRaw)) {
+          window.location.replace(base + window.location.hash);
           return;
         }
+
+        var page = pageRaw === null ? 1 : parseInt(pageRaw, 10);
+        var target = page <= 1 ? base : base + 'page/' + page + '/';
+        window.location.replace(target + window.location.hash);
       }
     }
 

@@ -52,7 +52,7 @@ const domainHref = domain
           GitHub<span class="sr-only">（新窗口）</span>
         </a>
         {
-          profile.data.email && (
+          profile.data.showEmail && (
             <a href={`mailto:${profile.data.email}`}>{profile.data.email}</a>
           )
         }

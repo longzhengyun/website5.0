@@ -62,7 +62,8 @@ const profile = defineCollection({
     englishName: z.string().trim().min(1).optional(),
     headline: z.string().trim().min(1),
     city: z.string().trim().min(1).optional(),
-    email: z.string().email().optional(),
+    email: z.string().email(),
+    showEmail: z.boolean().default(false),
     timezone: z.string().trim().min(1).optional(),
     github: z.string().url(),
     socials: z
