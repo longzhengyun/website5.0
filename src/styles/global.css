@@ -1327,6 +1327,8 @@ h3 {
 .crumb b {
   color: var(--blue);
   font-weight: 600;
+  /* FID-04：当前篇段为真实标题，避免大写变换混排 CJK/Latin */
+  text-transform: none;
 }
 
 .crumb a {

@@ -208,10 +208,3 @@ export function formatDate(date: Date): string {
   const day = String(date.getUTCDate()).padStart(2, '0');
   return `${year}.${month}.${day}`;
 }
-
-export function formatDateLong(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth() + 1;
-  const day = date.getUTCDate();
-  return `${year} 年 ${month} 月 ${day} 日`;
-}

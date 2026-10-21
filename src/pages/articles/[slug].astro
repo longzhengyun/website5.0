@@ -10,7 +10,6 @@ import {
   articlePath,
   categoryPath,
   formatDate,
-  formatDateLong,
   getAdjacentArticles,
   getCategorySlug,
   getProfile,
@@ -109,7 +108,7 @@ const breadcrumbSchema = {
           datetime={article.data.publishedAt.toISOString().slice(0, 10)}
           data-pagefind-meta={`date:${formatDate(article.data.publishedAt)}`}
         >
-          {formatDateLong(article.data.publishedAt)}
+          {formatDate(article.data.publishedAt)}
         </time>
         <span>{readingTime} min read</span>
         <span>{article.data.tags.length > 0 ? article.data.tags.slice(0, 3).join(' / ') : article.data.category}</span>
