@@ -1,21 +1,28 @@
+---
+---
 <script is:inline>
   (function () {
     var root = document.documentElement;
-    var theme = 'light';
+    var theme = null;
     try {
-      var saved = localStorage.getItem('jary-theme');
-      if (saved === 'dark' || saved === 'light') {
-        theme = saved;
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        theme = 'dark';
+      var param = new URLSearchParams(window.location.search).get('theme');
+      if (param === 'light' || param === 'dark') theme = param;
+      if (!theme) {
+        var saved = localStorage.getItem('jary-theme');
+        if (saved === 'light' || saved === 'dark') theme = saved;
       }
     } catch (error) {
-      theme = 'light';
+      /* 存储不可用时继续 */
+    }
+    if (!theme) {
+      if (window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+      else theme = 'dark';
     }
     root.dataset.theme = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'dark' ? '#100f0d' : '#f7f5f0');
+      meta.setAttribute('content', theme === 'dark' ? '#0f100e' : '#f3efe4');
     }
   })();
 </script>

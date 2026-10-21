@@ -1,6 +1,6 @@
 ---
-import { MAIN_NAV } from '../config/site';
-import { getLinkGroups } from '../lib/data';
+import { MAIN_NAV, SITE } from '../config/site';
+import { getLinkGroups, getVersionLogs } from '../lib/data';
 import type { ProfileEntry } from '../lib/content';
 
 interface Props {
@@ -19,43 +19,49 @@ const domainHref = domain
     ? domain
     : `https://${domain}`
   : undefined;
+const latestVersion = getVersionLogs()[0];
+const issueNo = latestVersion
+  ? String(parseInt(latestVersion.version.replace(/^V/i, ''), 10)).padStart(2, '0')
+  : null;
+const timezone = profile.data.timezone ?? 'UTC+8';
 ---
 
-<footer class="site-footer">
-  <div class="page-shell">
-    <div class="footer-top">
-      <div>
-        <p class="footer-brand">
-          <span>Jary<span class="brand-eight">8</span></span>
-          <span class="brand-cn">佳瑞网</span>
-        </p>
-        <p class="footer-tagline">
-          记录 Web 前端、界面设计与长期维护。内容以文件驱动，页面保持静态与轻量。
-        </p>
-      </div>
-      <nav class="footer-nav" aria-label="页脚导航">
+<footer class="site-foot">
+  <div class="foot-top">
+    <div class="foot-mark" aria-hidden="true">JARY<b>8</b></div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h3>Index</h3>
         {
           MAIN_NAV.map((item) => (
             <a href={item.href}>{item.label}</a>
           ))
         }
         {hasLinks && <a href="/#links">常去</a>}
-        <a href="/rss.xml">RSS</a>
         <a href="/sitemap.xml">站点地图</a>
-      </nav>
-    </div>
-
-    <div class="footer-bottom">
-      <p>© {yearRange} {meta.copyrightName} · SITE SINCE {meta.startedYear}</p>
-      <div class="footer-meta">
-        <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
-          GitHub<span class="sr-only">（新窗口）</span>
-        </a>
+      </div>
+      <div class="foot-col">
+        <h3>Issue</h3>
+        {
+          latestVersion && issueNo && (
+            <p>
+              No. {issueNo} / {latestVersion.date}
+            </p>
+          )
+        }
+        <p>静态构建 · 无数据库 · 0 第三方</p>
+      </div>
+      <div class="foot-col">
+        <h3>Contact</h3>
         {
           profile.data.showEmail && (
             <a href={`mailto:${profile.data.email}`}>{profile.data.email}</a>
           )
         }
+        <a href={profile.data.github} target="_blank" rel="noopener noreferrer">
+          GitHub<span class="sr-only">（新窗口）</span>
+        </a>
+        <a href="/rss.xml">RSS 订阅</a>
         {
           domainHref && domain && (
             <a href={domainHref} target="_blank" rel="noopener noreferrer">
@@ -63,18 +69,27 @@ const domainHref = domain
             </a>
           )
         }
-        {
-          meta.icp && (
-            <a
-              href="https://beian.miit.gov.cn/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {meta.icp}<span class="sr-only">（新窗口）</span>
-            </a>
-          )
-        }
       </div>
     </div>
+  </div>
+
+  <div class="foot-bottom">
+    <p>
+      © {yearRange} {meta.copyrightName} · SITE SINCE {meta.startedYear}
+      {
+        meta.icp && (
+          <>
+            {' · '}
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+              {meta.icp}
+              <span class="sr-only">（新窗口）</span>
+            </a>
+          </>
+        )
+      }
+    </p>
+    <p>
+      Set in <b>Instrument Serif</b> &amp; <b>JetBrains Mono</b> · {timezone} · {SITE.nameEn}
+    </p>
   </div>
 </footer>

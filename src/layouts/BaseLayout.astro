@@ -35,7 +35,7 @@ const ogImageUrl = new URL(ogImage ?? SITE.defaultOgImage, site).href;
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -56,7 +56,7 @@ const ogImageUrl = new URL(ogImage ?? SITE.defaultOgImage, site).href;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <meta name="theme-color" content="#f7f5f0" />
+    <meta name="theme-color" content="#0f100e" />
     <meta name="author" content={profile.data.name} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS`} href="/rss.xml" />
@@ -67,24 +67,14 @@ const ogImageUrl = new URL(ogImage ?? SITE.defaultOgImage, site).href;
     <slot name="head" />
   </head>
   <body>
-    <a class="skip-link" href="#main">跳至主内容</a>
-    <Header section={section} profile={profile} />
-    <main id="main" tabindex="-1">
-      <slot />
-    </main>
-    <Footer profile={profile} />
-    <SearchDialog />
-
-    <script>
-      document.querySelectorAll<HTMLImageElement>('img.js-cover-img').forEach((image) => {
-        image.addEventListener(
-          'error',
-          () => {
-            image.hidden = true;
-          },
-          { once: true },
-        );
-      });
-    </script>
+    <div class="site">
+      <a class="skip-link" href="#main">跳至主内容</a>
+      <Header section={section} />
+      <main id="main" class={section === 'home' ? undefined : 'page--in'} tabindex="-1">
+        <slot />
+      </main>
+      <Footer profile={profile} />
+      <SearchDialog />
+    </div>
   </body>
 </html>
