@@ -113,6 +113,22 @@
       link.appendChild(image);
     });
 
+    // 文章正文节号：与 anchor 的 “NN / 标签” kicker 同构（仅 article-wrap 内生效）
+    if (content.closest('.article-wrap')) {
+      var secIndex = 0;
+      content.querySelectorAll(':scope > h2').forEach(function (heading) {
+        if (heading.querySelector('.secno')) return;
+        secIndex += 1;
+        var raw = (heading.textContent || '').trim();
+        var label = raw.length >= 2 ? raw.slice(-2) : raw;
+        var secno = document.createElement('span');
+        secno.className = 'secno';
+        secno.setAttribute('aria-hidden', 'true');
+        secno.textContent = (secIndex < 10 ? '0' : '') + secIndex + ' / ' + label;
+        heading.insertBefore(secno, heading.firstChild);
+      });
+    }
+
     // 目录滚动高亮
     var tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
     if (tocLinks.length === 0) return;

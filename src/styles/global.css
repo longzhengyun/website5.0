@@ -1538,6 +1538,24 @@ h3 {
   margin: 0 0 1.25em;
 }
 
+/* FID-02：文章首段首字下沉（anchor editorial-futurism §prose drop cap） */
+.article-wrap .prose > p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--serif);
+  font-size: 4.1em;
+  line-height: 0.78;
+  padding: 6px 10px 0 0;
+  color: var(--blue);
+}
+
+.article-wrap .prose h2 .secno {
+  display: block;
+  margin-bottom: 8px;
+  font: 500 8px/1 var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--blue);
+}
+
 .prose h2 {
   scroll-margin-top: calc(var(--util-h) + 28px);
   margin: 2.4em 0 0.8em;
