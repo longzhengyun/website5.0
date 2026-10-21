@@ -133,11 +133,39 @@ export function paginate<T>(items: T[], page: number, perPage = ARTICLES_PER_PAG
   };
 }
 
-export function getReadingTime(body: string | undefined): number {
-  const text = body ?? '';
+function readingMinutes(text: string): number {
   const cjk = (text.match(/[\u3400-\u9fff]/g) ?? []).length;
   const latinWords = (text.match(/[A-Za-z0-9]+/g) ?? []).length;
-  return Math.max(1, Math.round(cjk / 300 + latinWords / 200));
+  return Math.max(1, Math.ceil(cjk / 300 + latinWords / 200));
+}
+
+export function getReadingTime(body: string | undefined): number {
+  return readingMinutes(body ?? '');
+}
+
+// MDX 条目不暴露正文（entry.body 为空），从源文件原始文本实算。
+// 口径：去除 frontmatter、import 行、围栏代码块、JSX/HTML 标签，链接保留锚文本；
+// 计数沿用 getReadingTime：CJK 300 字/分钟 + 拉丁 200 词/分钟，最少 1 分钟。
+const articleSources = import.meta.glob(
+  '../content/articles/**/*.{md,mdx}',
+  { query: 'raw', import: 'default', eager: true },
+) as Record<string, string>;
+
+function readingText(source: string): string {
+  return source
+    .replace(/^---[\s\S]*?\n---\s*/, '')
+    .replace(/^import\s.*$/gm, '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/<[^>\n]+>/g, ' ');
+}
+
+export function getArticleReadingTime(article: ArticleEntry): number {
+  const key = Object.keys(articleSources).find(
+    (path) => path.endsWith(`/${article.id}.mdx`) || path.endsWith(`/${article.id}.md`),
+  );
+  return getReadingTime(key ? readingText(articleSources[key]) : article.body);
 }
 
 export function articlePath(slug: string): string {

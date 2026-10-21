@@ -10,7 +10,7 @@ import {
   getProfile,
   getPublishedArticles,
   getPublishedProjects,
-  getReadingTime,
+  getArticleReadingTime,
   projectPath,
 } from '../lib/content';
 import { getLinkGroups, getVersionLogs } from '../lib/data';
@@ -33,7 +33,7 @@ const issueDate = latest?.date ?? formatDate(new Date());
 
 const cover = getFeaturedArticles(articles, 1)[0] ?? articles[0];
 const coverIndex = cover ? articles.findIndex((a) => a.id === cover.id) : -1;
-const coverReading = cover ? getReadingTime(cover.body) : 0;
+const coverReading = cover ? getArticleReadingTime(cover) : 0;
 const guideArticles = articles.slice(0, 4);
 const contents = articles.slice(0, 6);
 const buildProjects = getFeaturedProjects(projects, 3);
@@ -133,7 +133,7 @@ const websiteSchema = {
                 <span>
                   <span class="cl-title">{article.data.title}</span>
                   <span class="cl-meta">
-                    {article.data.category} · {getReadingTime(article.body)} min
+                    {article.data.category} · {getArticleReadingTime(article)} min
                   </span>
                 </span>
                 <span class="cl-arrow" aria-hidden="true">↗</span>

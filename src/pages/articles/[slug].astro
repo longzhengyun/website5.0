@@ -15,7 +15,7 @@ import {
   getCategorySlug,
   getProfile,
   getPublishedArticles,
-  getReadingTime,
+  getArticleReadingTime,
   getRelatedArticles,
 } from '../../lib/content';
 
@@ -32,7 +32,7 @@ const [profile, articles] = await Promise.all([getProfile(), getPublishedArticle
 const { Content, headings } = await render(article);
 const tocItems = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const categorySlug = getCategorySlug(article.data.category);
-const readingTime = getReadingTime(article.body);
+const readingTime = getArticleReadingTime(article);
 const related = getRelatedArticles(articles, article, 3);
 const { prev, next } = getAdjacentArticles(articles, article);
 const site = Astro.site ?? new URL('https://jary8.com');
