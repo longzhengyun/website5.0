@@ -1,8 +1,6 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProseScripts from '../components/ProseScripts.astro';
-import { SITE } from '../config/site';
 import { getProfile } from '../lib/content';
 import { getVersionLogs } from '../lib/data';
 
@@ -12,12 +10,13 @@ const { data } = profile;
 const meta = data.siteMeta;
 const versionLogs = getVersionLogs();
 const timezone = data.timezone ?? 'UTC+8';
-const location = [data.city, timezone].filter(Boolean).join(' · ');
+const jobTitle = 'Web 前端开发';
 const skills = data.skills.filter((group) => group.items.length > 0);
 const description =
   '关于佳瑞网作者 Jary：多年 Web 前端开发经验，关注界面、性能与可维护性；这里记录技能、站点版本与联系方式。';
 const site = Astro.site ?? new URL('https://jary8.com');
 const aboutUrl = new URL('/about/', site).href;
+const [emailUser, emailDomain] = data.email.split('@');
 
 const personSchema = {
   '@context': 'https://schema.org',
@@ -26,7 +25,7 @@ const personSchema = {
   alternateName: data.englishName,
   url: aboutUrl,
   description: data.shortBio,
-  jobTitle: 'Web 前端开发',
+  jobTitle,
   knowsAbout: skills.flatMap((group) => group.items.map((item) => item.name)),
   sameAs: [data.github, ...data.socials.map((social) => social.url)],
 };
@@ -37,213 +36,157 @@ const personSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
   </Fragment>
 
-  <div class="page">
-    <div class="page-shell">
-      <div data-pagefind-body data-pagefind-meta="type:页面">
-        <header class="page-head">
-          <div>
-            <p class="page-kicker">ABOUT / PROFILE</p>
-            <h1 class="page-title" id="page-title" tabindex="-1" data-pagefind-meta="title">关于</h1>
-            <p class="page-desc">{description}</p>
-          </div>
-          <div class="page-head-side">
-            <p class="page-count">{data.name} · {timezone}</p>
-          </div>
-        </header>
+  <div class="page" data-pagefind-body data-pagefind-meta="type:页面">
+    <header class="page-head">
+      <div>
+        <p class="page-kicker">Profile / Colophon</p>
+        <h1 id="page-title" tabindex="-1" data-pagefind-meta="title">
+          关于<em>{data.englishName}</em>
+        </h1>
+        <p class="page-dek">{data.shortBio}</p>
+      </div>
+      <p class="page-side">
+        {jobTitle}<br />
+        {timezone}<br />
+        {meta.careerStartYear ? <>Since {meta.careerStartYear}</> : <>EST. {meta.startedYear}</>}
+      </p>
+    </header>
 
-        <section class="about-profile" aria-labelledby="about-profile-title">
-          <div class="about-portrait">
-            <img
-              src={data.avatar}
-              width="800"
-              height="800"
-              alt={`${data.name} 的头像`}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          <div>
-            <h2 class="about-title" id="about-profile-title">
-              {data.name}<span class="about-title-mark" aria-hidden="true">.</span>
-            </h2>
-            <p class="about-lead">{data.shortBio}</p>
-            <ul class="about-facts">
-              <li>BASE <strong>{location}</strong></li>
-              <li>FOCUS <strong>界面 / 性能 / 可维护性</strong></li>
-              <li>SINCE <strong>{meta.startedYear}</strong></li>
-              {meta.careerStartYear && <li>CAREER <strong>{meta.careerStartYear} 入行</strong></li>}
-            </ul>
-            <div class="about-actions">
-              <a class="btn btn-primary" href={data.github} target="_blank" rel="noopener noreferrer">
-                GitHub
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
-                <span class="sr-only">（新窗口）</span>
-              </a>
-              <a class="btn btn-ghost" href="/rss.xml">RSS 订阅</a>
-              {data.resumeUrl && (
-                <a class="btn btn-ghost" href={data.resumeUrl} target="_blank" rel="noopener noreferrer">
-                  简历<span class="sr-only">（新窗口）</span>
-                </a>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section class="about-section" aria-labelledby="bio-title">
-          <p class="about-kicker"><span>01</span> BIO</p>
-          <h2 class="about-title" id="bio-title">简介</h2>
-          <div class="prose about-prose" data-prose-content>
-            <Content />
-          </div>
-        </section>
-
-        {skills.length > 0 && (
-          <section class="about-section" aria-labelledby="skills-title">
-            <p class="about-kicker"><span>02</span> SKILLS</p>
-            <h2 class="about-title" id="skills-title">技能</h2>
-            <div class="skills-grid">
-              {skills.map((group) => (
-                <div class="skill-group">
-                  <h3>{group.group}</h3>
-                  <ul class="skill-list">
-                    {group.items.map((item) => (
-                      <li>
-                        {item.name}
-                        {item.level && <span class="skill-level">{item.level}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {data.experience.length > 0 && (
-          <section class="about-section" aria-labelledby="experience-title">
-            <p class="about-kicker"><span>03</span> EXPERIENCE</p>
-            <h2 class="about-title" id="experience-title">经历</h2>
-            <ol class="timeline">
-              {data.experience.map((item) => (
-                <li class="timeline-item">
-                  <span class="timeline-period">{item.period}</span>
-                  <div>
-                    <p class="timeline-role">{item.company} · {item.role}</p>
-                    <p class="timeline-summary">{item.summary}</p>
-                    {item.highlights.length > 0 && (
-                      <ul class="timeline-highlights">
-                        {item.highlights.map((highlight) => <li>{highlight}</li>)}
-                      </ul>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        {data.education.length > 0 && (
-          <section class="about-section" aria-labelledby="education-title">
-            <p class="about-kicker"><span>04</span> EDUCATION</p>
-            <h2 class="about-title" id="education-title">教育</h2>
-            <ol class="timeline">
-              {data.education.map((item) => (
-                <li class="timeline-item">
-                  <span class="timeline-period">{item.period}</span>
-                  <div>
-                    <p class="timeline-role">{item.school} · {item.major}</p>
-                    {item.degree && <p class="timeline-summary">{item.degree}</p>}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        {versionLogs.length > 0 && (
-          <section class="about-section" id="version" aria-labelledby="version-title">
-            <p class="about-kicker"><span>05</span> VERSION</p>
-            <h2 class="about-title" id="version-title">版本记录</h2>
-            <p class="about-lead">站点从 {meta.startedYear} 年运行至今，每一次重做都留下了可回看的技术选择。</p>
-            <ol class="version-list">
-              {versionLogs.map((log, index) => (
-                <li class="version-item">
-                  <details open={index === 0}>
-                    <summary>
-                      <span class="version-number">{log.version}</span>
-                      <span class="version-title">{log.title}</span>
-                      <span class="version-date">{log.date}</span>
-                    </summary>
-                    <div class="version-detail">
-                      <p>{log.summary}</p>
-                      {log.tech.length > 0 && (
-                        <div class="version-tech">
-                          {log.tech.map((tech) => <span>{tech}</span>)}
-                        </div>
-                      )}
-                    </div>
-                  </details>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        <section class="about-section" aria-labelledby="site-info-title">
-          <p class="about-kicker"><span>06</span> SITE</p>
-          <h2 class="about-title" id="site-info-title">站点</h2>
-          <p class="about-lead">
-            {SITE.name}以内容文件驱动，静态构建与发布；没有登录、数据库或服务端接口。
-          </p>
-          <ul class="site-meta-list">
-            <li>始于 {meta.startedYear}</li>
-            {meta.careerStartYear && <li>{meta.careerStartYear} 入行</li>}
-            <li>{timezone}</li>
-            {meta.siteDomain && (
-              <li>
-                <a
-                  href={meta.siteDomain.startsWith('http') ? meta.siteDomain : `https://${meta.siteDomain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {meta.siteDomain}<span class="sr-only">（新窗口）</span>
-                </a>
-              </li>
-            )}
-            {meta.icp && <li>{meta.icp}</li>}
-            <li><a href="/rss.xml">RSS</a></li>
-            <li><a href="/sitemap.xml">Sitemap</a></li>
-          </ul>
-        </section>
-
-        <section class="about-section" aria-labelledby="contact-title">
-          <p class="about-kicker"><span>07</span> CONTACT</p>
-          <h2 class="about-title" id="contact-title">联系</h2>
-          <p class="about-lead">
-            {
-              data.showEmail
-                ? '没有表单；可以通过邮箱、GitHub 或 RSS 保持联系。'
-                : '没有表单，也没有邮箱抓取；通过 GitHub 或 RSS 保持联系。'
-            }
-          </p>
-          <div class="about-actions">
-            {data.showEmail && (
-              <a class="btn btn-primary" href={`mailto:${data.email}`}>
-                邮箱
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
-              </a>
-            )}
-            <a class={data.showEmail ? 'btn btn-ghost' : 'btn btn-primary'} href={data.github} target="_blank" rel="noopener noreferrer">
-              GitHub
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
-              <span class="sr-only">（新窗口）</span>
-            </a>
-            <a class="btn btn-ghost" href="/rss.xml">RSS 订阅</a>
-          </div>
-        </section>
+    <div class="about-hero">
+      <div>
+        <p class="page-kicker">The Author / 作者</p>
+        <h2 class="about-name">{data.name}<i>.</i></h2>
+      </div>
+      <div class="about-intro" data-prose-content>
+        <Content />
       </div>
     </div>
+
+    <div class="about-grid">
+      {skills.length > 0 && (
+        <section class="about-section" aria-labelledby="skills-title">
+          <h2 id="skills-title">技能<em>Skills</em></h2>
+          {skills.map((group) => (
+            <div class="skill-group">
+              <h3>{group.group}</h3>
+              {group.items.map((item) => (
+                <div class="skill-row"><span>{item.name}</span><span>{item.level}</span></div>
+              ))}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {versionLogs.length > 0 && (
+        <section class="about-section" aria-labelledby="editions-title" id="version">
+          <h2 id="editions-title">版本<em>Editions</em></h2>
+          <table class="editions">
+            <caption class="sr-only">站点版本记录</caption>
+            <thead>
+              <tr><th scope="col">Edition</th><th scope="col">说明</th><th scope="col">时间</th></tr>
+            </thead>
+            <tbody>
+              {versionLogs.map((log) => (
+                <tr>
+                  <td>{log.version}</td>
+                  <td>
+                    {log.title}
+                    {log.summary && <span class="edition-tech">{log.summary}</span>}
+                    {log.tech.length > 0 && (
+                      <span class="edition-tech">{log.tech.join(' / ')}</span>
+                    )}
+                  </td>
+                  <td>{log.date}</td>
+                </tr>
+              ))}
+              <tr>
+                <td>始</td>
+                <td>站点建立，开始持续写作</td>
+                <td>{meta.startedYear}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      )}
+    </div>
+
+    <div class="colophon">
+      <div>
+        <h3>Type</h3>
+        Instrument Serif<br />JetBrains Mono<br />系统中文无衬线
+      </div>
+      <div>
+        <h3>Build</h3>
+        Astro + MDX<br />静态输出<br />无数据库 · 0 第三方
+      </div>
+      <div>
+        <h3>Search</h3>
+        Pagefind<br />按需加载<br />不进入首屏
+      </div>
+      <div>
+        <h3>Reading</h3>
+        深 / 浅色<br />跟随系统<br />可键盘操作
+      </div>
+    </div>
+
+    <section class="section" aria-labelledby="contact-title">
+      <div class="section-head">
+        <div>
+          <p class="sec-kicker">Contact / 联系</p>
+          <h2 class="sec-title" id="contact-title">保持联系<em>Elsewhere</em></h2>
+        </div>
+      </div>
+      <p class="page-dek">
+        {data.showEmail
+          ? '没有表单；可以通过邮箱、GitHub 或 RSS 保持联系。'
+          : '没有表单；邮箱按需显示，也可以直接通过 GitHub 或 RSS 保持联系。'}
+      </p>
+      <div class="contact-chips">
+        {data.showEmail ? (
+          <a href={`mailto:${data.email}`}>Email</a>
+        ) : (
+          data.email && (
+            <button
+              type="button"
+              data-email-reveal
+              data-email-user={emailUser}
+              data-email-domain={emailDomain}
+            >
+              点击显示邮箱
+            </button>
+          )
+        )}
+        <a href={data.github} target="_blank" rel="noopener noreferrer">
+          GitHub<span aria-hidden="true"> ↗</span><span class="sr-only">（新窗口）</span>
+        </a>
+        <a href="/rss.xml">RSS</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        {meta.siteDomain && (
+          <a
+            href={meta.siteDomain.startsWith('http') ? meta.siteDomain : `https://${meta.siteDomain}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {meta.siteDomain}<span aria-hidden="true"> ↗</span><span class="sr-only">（新窗口）</span>
+          </a>
+        )}
+      </div>
+    </section>
   </div>
 
-  <ProseScripts />
+  <script is:inline>
+    (function () {
+      var button = document.querySelector('[data-email-reveal]');
+      if (!button) return;
+      button.addEventListener('click', function () {
+        var email = button.getAttribute('data-email-user') + '@' + button.getAttribute('data-email-domain');
+        var link = document.createElement('a');
+        link.href = 'mailto:' + email;
+        link.textContent = email;
+        link.setAttribute('data-email-shown', '');
+        button.parentNode.replaceChild(link, button);
+        link.focus();
+      });
+    })();
+  </script>
 </BaseLayout>

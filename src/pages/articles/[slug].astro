@@ -30,6 +30,7 @@ export async function getStaticPaths() {
 const { article } = Astro.props;
 const [profile, articles] = await Promise.all([getProfile(), getPublishedArticles()]);
 const { Content, headings } = await render(article);
+const tocItems = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const categorySlug = getCategorySlug(article.data.category);
 const readingTime = getReadingTime(article.body);
 const related = getRelatedArticles(articles, article, 3);
@@ -41,7 +42,6 @@ const coverUrl = article.data.cover
   : new URL(SITE.defaultOgImage, site).href;
 
 const breadcrumbItems = [
-  { label: '首页', href: '/' },
   { label: '文章', href: '/articles/' },
   ...(categorySlug
     ? [{ label: article.data.category, href: categoryPath(categorySlug) }]
@@ -93,114 +93,128 @@ const breadcrumbSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   </Fragment>
 
-  <div class="page">
-    <div class="page-shell">
+  <div class="page" data-pagefind-body data-pagefind-meta="type:文章">
+    <div class="readbar" aria-hidden="true"><i data-readfill></i></div>
+
+    <header class="article-head">
       <Breadcrumbs items={breadcrumbItems} />
-
-      <div class="article-layout">
-        <div class="article-main">
-          <article data-pagefind-body data-pagefind-meta="type:文章">
-            <header class="article-header">
-              <div class="article-kicker">
-                {categorySlug && (
-                  <a href={categoryPath(categorySlug)}>{article.data.category}</a>
-                )}
-                <span aria-hidden="true">·</span>
-                <time
-                  datetime={article.data.publishedAt.toISOString().slice(0, 10)}
-                  data-pagefind-meta={`date:${formatDate(article.data.publishedAt)}`}
-                >
-                  {formatDateLong(article.data.publishedAt)}
-                </time>
-                <span aria-hidden="true">·</span>
-                <span>{readingTime} min read</span>
-                {article.data.updatedAt && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>更新于 {formatDate(article.data.updatedAt)}</span>
-                  </>
-                )}
-              </div>
-
-              <h1 class="article-title" data-pagefind-meta="title">{article.data.title}</h1>
-              <p class="article-summary">{article.data.summary}</p>
-
-              {article.data.cover && (
-                <div class="article-cover">
-                  <Image
-                    src={article.data.cover}
-                    alt={`${article.data.title} 封面`}
-                    width={article.data.cover.width}
-                    height={article.data.cover.height}
-                    widths={[640, 960, 1280]}
-                    sizes="(min-width: 1280px) 45rem, 100vw"
-                    loading="eager"
-                    decoding="async"
-                  />
-                </div>
-              )}
-            </header>
-
-            <Toc headings={headings} variant="mobile" />
-
-            <div class="prose" data-prose-content>
-              <Content />
-            </div>
-
-            {article.data.tags.length > 0 && (
-              <div class="article-tags-block">
-                <p class="article-tags-label">标签</p>
-                <ul class="article-tags" aria-label="文章标签">
-                  {article.data.tags.map((tag) => <li>{tag}</li>)}
-                </ul>
-              </div>
-            )}
-          </article>
-
-          {(prev || next) && (
-            <nav class="article-adjacent" aria-label="文章导航">
-              {prev ? (
-                <a class="adjacent-link" href={articlePath(prev.data.slug)} rel="prev">
-                  <span class="adjacent-label">上一篇</span>
-                  <span class="adjacent-title">{prev.data.title}</span>
-                </a>
-              ) : (
-                <span class="adjacent-link" aria-hidden="true"></span>
-              )}
-              {next ? (
-                <a class="adjacent-link" href={articlePath(next.data.slug)} rel="next">
-                  <span class="adjacent-label">下一篇</span>
-                  <span class="adjacent-title">{next.data.title}</span>
-                </a>
-              ) : (
-                <span class="adjacent-link" aria-hidden="true"></span>
-              )}
-            </nav>
-          )}
-
-          {related.length > 0 && (
-            <section class="related" aria-labelledby="related-title">
-              <h2 class="related-title" id="related-title">相关文章</h2>
-              <ul class="related-list">
-                {related.map((item) => (
-                  <li>
-                    <a href={articlePath(item.data.slug)}>
-                      <span>{item.data.title}</span>
-                      <time datetime={item.data.publishedAt.toISOString().slice(0, 10)}>
-                        {formatDate(item.data.publishedAt)}
-                      </time>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-
-        <Toc headings={headings} variant="desktop" />
+      <h1 id="article-title" data-pagefind-meta="title">{article.data.title}</h1>
+      <p class="article-dek">{article.data.summary}</p>
+      <div class="article-meta">
+        <span>
+          <b>{profile.data.name}</b>
+          {' 著'}
+        </span>
+        <time
+          datetime={article.data.publishedAt.toISOString().slice(0, 10)}
+          data-pagefind-meta={`date:${formatDate(article.data.publishedAt)}`}
+        >
+          {formatDateLong(article.data.publishedAt)}
+        </time>
+        <span>{readingTime} min read</span>
+        <span>{article.data.tags.length > 0 ? article.data.tags.slice(0, 3).join(' / ') : article.data.category}</span>
       </div>
+
+      {
+        article.data.cover && (
+          <div class="article-cover">
+            <Image
+              src={article.data.cover}
+              alt={`${article.data.title} 封面`}
+              width={article.data.cover.width}
+              height={article.data.cover.height}
+              widths={[640, 960, 1280]}
+              sizes="(min-width: 1280px) 45rem, 100vw"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        )
+      }
+    </header>
+
+    <Toc headings={headings} variant="mobile" />
+
+    <div class:list={['article-wrap', { single: tocItems.length < 2 }]}>
+      <Toc headings={headings} variant="desktop" />
+
+      <article class="prose" data-prose-content>
+        <Content />
+      </article>
     </div>
+
+    {
+      article.data.tags.length > 0 && (
+        <div class="article-tags-block">
+          <p class="article-tags-label">标签</p>
+          <ul class="article-tags" aria-label="文章标签">
+            {article.data.tags.map((tag) => (
+              <li class="tag">{tag}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    {
+      (prev || next) && (
+        <nav class="article-adjacent" aria-label="文章导航">
+          {prev ? (
+            <a class="adjacent-link" href={articlePath(prev.data.slug)} rel="prev">
+              <span class="adjacent-label">上一篇</span>
+              <span class="adjacent-title">{prev.data.title}</span>
+            </a>
+          ) : (
+            <span class="adjacent-link" aria-hidden="true"></span>
+          )}
+          {next ? (
+            <a class="adjacent-link" href={articlePath(next.data.slug)} rel="next">
+              <span class="adjacent-label">下一篇</span>
+              <span class="adjacent-title">{next.data.title}</span>
+            </a>
+          ) : (
+            <span class="adjacent-link" aria-hidden="true"></span>
+          )}
+        </nav>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="related" aria-labelledby="related-title">
+          <h2 class="related-title" id="related-title">相关阅读</h2>
+          <ul class="related-list">
+            {related.map((item) => (
+              <li>
+                <a href={articlePath(item.data.slug)}>
+                  <span>{item.data.title}</span>
+                  <time datetime={item.data.publishedAt.toISOString().slice(0, 10)}>
+                    {formatDate(item.data.publishedAt)}
+                  </time>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
   </div>
 
   <ProseScripts />
+
+  <script is:inline>
+    (function () {
+      var fill = document.querySelector('[data-readfill]');
+      if (!fill) return;
+      var doc = document.documentElement;
+      var update = function () {
+        var max = doc.scrollHeight - doc.clientHeight;
+        var ratio = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+        fill.style.transform = 'scaleX(' + ratio + ')';
+      };
+      document.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+      update();
+    })();
+  </script>
 </BaseLayout>

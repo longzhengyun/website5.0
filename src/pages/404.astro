@@ -1,34 +1,47 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { articlePath, getPublishedArticles } from '../lib/content';
 
-const description = '请求的页面不存在或已经移动。可以返回首页，或搜索文章与项目。';
+const description = '请求的页面不存在或已经移动。可以返回封面，或从索引里重新找一条路径。';
+const articles = (await getPublishedArticles()).slice(0, 3);
 ---
 
 <BaseLayout title="页面不存在" description={description} noindex noCanonical>
   <div class="page">
-    <div class="page-shell">
-      <div class="not-found">
-        <p class="not-found-code">ERROR / 404</p>
-        <h1 class="not-found-title">这一页不在了。</h1>
-        <p>链接可能已经失效，页面也可能被重命名。可以返回首页重新出发，或直接搜索文章与项目。</p>
-        <div class="not-found-actions">
-          <a class="btn btn-primary" href="/">
-            返回首页
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"></path></svg>
-          </a>
-          <a class="btn btn-ghost" href="/articles/">阅读文章</a>
-          <button
-            class="btn btn-ghost"
-            type="button"
-            data-open-search
-            aria-haspopup="dialog"
-            aria-controls="searchDialog"
-          >
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
-            搜索
-          </button>
-        </div>
+    <div class="e404">
+      <p class="e404-kicker">Error / Not in this issue</p>
+      <h1 aria-label="404 页面未找到">
+        <span aria-hidden="true">4</span><span aria-hidden="true">0</span><span aria-hidden="true">4</span>
+      </h1>
+      <p class="e404-copy">
+        这个页码不存在。链接可能已经过期，或者它从未被收录进这一期。回到封面，或者从索引里重新找一条路径。
+      </p>
+      <div class="e404-actions">
+        <a class="btn btn-primary" href="/">
+          返回封面 <span aria-hidden="true">↗</span>
+        </a>
+        <button
+          class="btn"
+          type="button"
+          data-open-search
+          aria-haspopup="dialog"
+          aria-controls="searchDialog"
+        >
+          打开索引
+        </button>
       </div>
+      {articles.length > 0 && (
+        <div class="e404-index">
+          <h2>或许你在找 / Try these</h2>
+          {articles.map((article, index) => (
+            <a href={articlePath(article.data.slug)}>
+              <span>{String(index + 1).padStart(3, '0')}</span>
+              {article.data.title}
+              <em aria-hidden="true">↗</em>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   </div>
 </BaseLayout>

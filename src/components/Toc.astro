@@ -16,16 +16,18 @@ const items = headings.filter((heading) => heading.depth === 2 || heading.depth 
 
 {
   items.length >= 2 && variant === 'desktop' && (
-    <aside class="toc" aria-labelledby="tocTitle">
-      <p class="toc-title" id="tocTitle">本文目录</p>
-      <ol class="toc-list">
-        {items.map((heading) => (
+    <aside class="folio-rail" aria-label="本页目录">
+      <p class="rail-kicker">Folio / 页码</p>
+      <p class="rail-title">本页目录</p>
+      <ol class="folio-list">
+        {items.map((heading, index) => (
           <li>
             <a
               href={`#${heading.slug}`}
               class={heading.depth === 3 ? 'depth-3' : undefined}
               data-toc-link
             >
+              <span>{String(index + 1).padStart(2, '0')}</span>
               {heading.text}
             </a>
           </li>
@@ -37,16 +39,17 @@ const items = headings.filter((heading) => heading.depth === 2 || heading.depth 
 
 {
   items.length >= 2 && variant === 'mobile' && (
-    <details class="toc-mobile">
-      <summary>本文目录（{items.length}）</summary>
-      <ol class="toc-list">
-        {items.map((heading) => (
+    <details class="mobile-toc">
+      <summary>本文目录 / Contents</summary>
+      <ol>
+        {items.map((heading, index) => (
           <li>
             <a
               href={`#${heading.slug}`}
               class={heading.depth === 3 ? 'depth-3' : undefined}
               data-toc-link
             >
+              <span>{String(index + 1).padStart(2, '0')}</span>
               {heading.text}
             </a>
           </li>

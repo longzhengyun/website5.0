@@ -1518,6 +1518,14 @@ h3 {
   color: var(--blue);
 }
 
+.folio-list a.depth-3 {
+  padding-left: 26px;
+}
+
+.article-wrap.single {
+  grid-template-columns: minmax(0, 45rem);
+}
+
 /* ============ prose（内容页正文，J-04 口径 ≥17px / ≥1.75 / ≤45rem） ============ */
 .prose {
   min-width: 0;
@@ -2157,19 +2165,6 @@ a.adjacent-link:hover .adjacent-title {
 
 .about-intro p {
   margin: 0 0 1em;
-}
-
-.about-portrait {
-  width: 120px;
-  margin: 0 0 14px;
-}
-
-.about-portrait img {
-  display: block;
-  width: 120px;
-  height: 120px;
-  border: 1px solid var(--line-2);
-  filter: grayscale(1) contrast(1.05);
 }
 
 .about-grid {
