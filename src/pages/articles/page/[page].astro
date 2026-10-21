@@ -20,7 +20,7 @@ const { items, currentPage, totalPages } = paginate(articles, pageNumber);
 <BaseLayout
   section="articles"
   title={`文章 · 第 ${currentPage} 页`}
-  description={`佳瑞网的文章列表第 ${currentPage} 页，继续浏览 Web 前端、界面设计、性能优化与工程化的实践和取舍。`}
+  description={`佳瑞网文章列表第 ${currentPage} 页，继续浏览 Web 前端、界面设计、性能优化与工程化实践，涵盖技术方案、问题排查与长期维护经验，按发布时间倒序排列，支持分类筛选与站内搜索。`}
 >
   <ArticleListPage
     allArticles={articles}

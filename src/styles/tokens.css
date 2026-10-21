@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-400.woff2") format("woff2");
+  src: url("/fonts/instrument-serif-400-latin.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -11,24 +11,17 @@
 
 @font-face {
   font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-400-italic.woff2") format("woff2");
+  src: url("/fonts/instrument-serif-400-italic-brand.woff2") format("woff2");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 
+/* 400/500 原文件为同一可变字体，500 及更高字重由 wght 轴提供。 */
 @font-face {
   font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
-  font-weight: 500;
+  src: url("/fonts/jetbrains-mono-var-latin.woff2") format("woff2");
+  font-weight: 400 800;
   font-style: normal;
   font-display: swap;
 }

@@ -3,7 +3,7 @@ export const SITE = {
   nameEn: 'Jary8',
   title: '佳瑞网 — Web 前端开发',
   description:
-    '佳瑞网的个人技术站：记录 Web 前端、界面设计与长期维护的文章、项目和经历。',
+    '佳瑞网是站主的个人技术站，记录 Web 前端开发、界面设计、性能优化与工程化实践，汇集技术文章、项目案例与个人履历，分享一线开发中的经验与思考。',
   locale: 'zh-CN',
   github: 'https://github.com/longzhengyun',
   defaultOgImage: '/og-default.png',
