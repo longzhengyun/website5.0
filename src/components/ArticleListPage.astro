@@ -6,6 +6,7 @@ import Pagination from './Pagination.astro';
 import PostList from './PostList.astro';
 import type { ArticleEntry } from '../lib/content';
 import { ARTICLES_PER_PAGE } from '../config/site';
+import { formatDate } from '../lib/content';
 
 interface CategoryInfo {
   slug: string;
@@ -30,12 +31,14 @@ const {
   redirectQueries = false,
 } = Astro.props;
 
-const totalInScope = category
-  ? allArticles.filter((article) => article.data.category === category.label).length
-  : allArticles.length;
+const scoped = category
+  ? allArticles.filter((article) => article.data.category === category.label)
+  : allArticles;
+const totalInScope = scoped.length;
+const latestDate = scoped[0] ? formatDate(scoped[0].data.publishedAt) : '—';
 
-const h1 = category ? `${category.label} 文章` : '文章';
-const kicker = category ? 'CATEGORY' : 'WRITING';
+const h1 = category ? category.label : '文章';
+const kicker = category ? 'CATEGORY / JOURNAL' : 'INDEX / JOURNAL';
 const baseDescription = category
   ? `${category.label} 分类下的文章列表，记录 Web 前端实践中与 ${category.label} 相关的问题、方案和取舍，按发布时间倒序排列。`
   : '佳瑞网的文章列表，记录 Web 前端、界面设计、性能优化与工程化的实践和取舍；按发布时间排列，可按分类筛选，并提供搜索入口。';
@@ -50,51 +53,53 @@ const breadcrumbs = category
   : [];
 ---
 
-<div class="page page--list">
-  <div class="list-shell">
-    {category && <Breadcrumbs items={breadcrumbs} />}
+<div class="page page--list" data-pagefind-body data-pagefind-meta="type:页面">
+  {category && <Breadcrumbs items={breadcrumbs} />}
 
-    <header class="page-head">
-      <div>
-        <p class="page-kicker">{kicker}</p>
-        <h1 class="page-title" id="page-title" tabindex="-1">{h1}</h1>
-        <p class="page-desc">{baseDescription}</p>
-      </div>
-      <div>
-        <p class="page-count">共 {totalInScope} 篇 · 第 {page} / {totalPages} 页</p>
-        <button
-          class="search-inline"
-          type="button"
-          data-open-search
-          aria-haspopup="dialog"
-          aria-controls="searchDialog"
-        >
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
-          搜索文章与项目
-        </button>
-      </div>
-    </header>
-
-    <div class="tabs-row">
-      <CategoryTabs articles={allArticles} activeSlug={category?.slug} />
+  <header class="page-head">
+    <div>
+      <p class="page-kicker">{kicker}</p>
+      <h1 id="page-title" tabindex="-1">
+        {h1}
+        { !category && <em>Log</em> }
+      </h1>
+      <p class="page-dek">{baseDescription}</p>
     </div>
+    <div class="page-side">
+      {totalInScope} Entries
+      <br />
+      Updated <b>{latestDate}</b>
+      <br />
+      Ordered by date
+    </div>
+  </header>
 
-    <section id="article-list" aria-labelledby="article-list-title">
-      <h2 class="sr-only" id="article-list-title" tabindex="-1">文章列表</h2>
-      {
-        pageArticles.length > 0 ? (
-          <PostList articles={pageArticles} startIndex={startIndex} />
-        ) : (
+  <CategoryTabs articles={allArticles} activeSlug={category?.slug} activeCount={totalInScope} />
+
+  <section id="article-list" aria-labelledby="article-list-title">
+    <h2 class="sr-only" id="article-list-title" tabindex="-1">文章列表</h2>
+    {
+      pageArticles.length > 0 ? (
+        <PostList articles={pageArticles} startIndex={startIndex} />
+      ) : (
+        <div class="entries">
           <div class="empty-state">
-            <p>还没有已发布文章。</p>
-            <p><a href="/">返回首页</a></p>
+            <strong>这一格没有文章。</strong>
+            <p>
+              <a href="/articles/">看全部文章</a>，或按 <kbd>⌘K</kbd> 打开完整索引。
+            </p>
           </div>
-        )
-      }
-    </section>
+        </div>
+      )
+    }
+  </section>
 
-    <Pagination currentPage={page} totalPages={totalPages} categorySlug={category?.slug} />
-  </div>
+  <Pagination
+    currentPage={page}
+    totalPages={totalPages}
+    categorySlug={category?.slug}
+    totalArticles={totalInScope}
+  />
 
   <ArticleListScripts redirectQueries={redirectQueries} />
 </div>

@@ -1347,6 +1347,10 @@ h3 {
   color: var(--faint);
 }
 
+.page > .crumb {
+  padding: clamp(18px, 2.4cqw, 30px) var(--pad) 0;
+}
+
 .article-head h1 {
   max-width: 17ch;
   margin: 0;

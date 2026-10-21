@@ -1,44 +1,42 @@
 ---
 import type { ArticleEntry } from '../lib/content';
-import { articlePath, formatDate, getReadingTime } from '../lib/content';
+import { articlePath, formatDate } from '../lib/content';
 
 interface Props {
   articles: ArticleEntry[];
   startIndex?: number;
+  showHead?: boolean;
 }
 
-const { articles, startIndex = 0 } = Astro.props;
+const { articles, startIndex = 0, showHead = true } = Astro.props;
 ---
 
-<div class="post-list">
+<div class="entries">
   {
-    articles.map((article, index) => {
-      const readingTime = getReadingTime(article.body);
-      return (
-        <article class="post-row">
-          <span class="post-index" aria-hidden="true">
-            {String(startIndex + index + 1).padStart(2, '0')}
-          </span>
-          <div class="post-main">
-            <div class="post-kicker">
-              <span class="cat">{article.data.category}</span>
-            </div>
-            <h3 class="post-title">
-              <a href={articlePath(article.data.slug)}>{article.data.title}</a>
-            </h3>
-            <p class="post-summary">{article.data.summary}</p>
-          </div>
-          <div class="post-meta">
-            <time datetime={article.data.publishedAt.toISOString().slice(0, 10)}>
-              {formatDate(article.data.publishedAt)}
-            </time>
-            <span>{readingTime} min read</span>
-          </div>
-          <span class="post-arrow" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"></path></svg>
-          </span>
-        </article>
-      );
-    })
+    showHead && articles.length > 0 && (
+      <div class="entries-head" aria-hidden="true">
+        <span>No.</span>
+        <span>Date</span>
+        <span>Title / 摘要</span>
+        <span>Category</span>
+        <span>Pg.</span>
+      </div>
+    )
+  }
+  {
+    articles.map((article, index) => (
+      <a class="entry" href={articlePath(article.data.slug)}>
+        <span class="entry-no">{String(startIndex + index + 1).padStart(3, '0')}</span>
+        <time class="entry-date" datetime={article.data.publishedAt.toISOString().slice(0, 10)}>
+          {formatDate(article.data.publishedAt)}
+        </time>
+        <span class="entry-main">
+          <span class="entry-title">{article.data.title}</span>
+          <span class="entry-sum">{article.data.summary}</span>
+        </span>
+        <span class="entry-cat">{article.data.category}</span>
+        <span class="entry-arrow" aria-hidden="true">↗</span>
+      </a>
+    ))
   }
 </div>
