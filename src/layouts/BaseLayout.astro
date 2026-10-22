@@ -56,12 +56,12 @@ const ogImageUrl = new URL(ogImage ?? SITE.defaultOgImage, site).href;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <meta name="theme-color" content="#0f100e" />
+    <meta name="theme-color" content="#14171f" />
     <meta name="author" content={profile.data.name} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS`} href="/rss.xml" />
+    <link rel="preload" href="/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/instrument-serif-400-italic-brand.woff2" as="font" type="font/woff2" crossorigin />
 
     <ThemeScript />
     <slot name="head" />

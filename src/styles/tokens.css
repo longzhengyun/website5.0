@@ -59,6 +59,8 @@
   --faint: #6b7280;
   --line: rgba(233, 236, 242, 0.13);
   --line-2: rgba(233, 236, 242, 0.32);
+  /* §7 R1：交互控件唯一可见边界专用（复合约 3.6:1，>3:1） */
+  --edge: rgba(233, 236, 242, 0.42);
   --accent: #ff3d81;
   --accent-ink: #14171f;
   --accent-soft: rgba(255, 61, 129, 0.1);
@@ -92,6 +94,8 @@
   --faint: #767d8a;
   --line: rgba(25, 29, 38, 0.14);
   --line-2: rgba(25, 29, 38, 0.4);
+  /* §7 R1：交互描边（约 4.0:1） */
+  --edge: rgba(25, 29, 38, 0.58);
   --accent: #c9135f;
   --accent-ink: #ffffff;
   --accent-soft: rgba(201, 19, 95, 0.08);

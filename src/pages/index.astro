@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Globe from '../components/Globe.astro';
+import MeteorBackground from '../components/MeteorBackground.astro';
 import {
   articlePath,
   formatDate,
@@ -74,7 +75,8 @@ const websiteSchema = {
     </div>
   </div>
 
-  <div class="hero">
+  <section class="hero-band" aria-labelledby="hero-title">
+    <MeteorBackground />
     <div class="hero-main">
       {
         cover && (
@@ -86,8 +88,7 @@ const websiteSchema = {
         )
       }
       <h1 id="hero-title">
-        <span>界面要</span>
-        <span>经得起</span>
+        <span>界面要经得起</span>
         <span class="accent">回看。</span>
       </h1>
       <p class="hero-dek">{SITE.description}</p>
@@ -100,7 +101,7 @@ const websiteSchema = {
           )
         }
         {contents.length > 0 && (
-          <a class="btn-text" href="#contents">
+          <a class="btn" href="#contents">
             本期目录 <span aria-hidden="true">↓</span>
           </a>
         )}
@@ -118,32 +119,32 @@ const websiteSchema = {
         )
       }
     </div>
+  </section>
 
-    <aside class="hero-side" aria-label="本期导读">
-      {
-        guideArticles.length > 0 && (
-          <div class="cover-lines">
-            <div class="cover-head">
-              <span>In This Issue</span>
-              <span>{String(guideArticles.length).padStart(2, '0')} Entries</span>
-            </div>
-            {guideArticles.map((article, index) => (
-              <a class="cover-line" href={articlePath(article.data.slug)}>
-                <span class="cl-no">{String(index + 1).padStart(2, '0')}</span>
-                <span>
-                  <span class="cl-title">{article.data.title}</span>
-                  <span class="cl-meta">
-                    {article.data.category} · {getArticleReadingTime(article)} min
-                  </span>
-                </span>
-                <span class="cl-arrow" aria-hidden="true">↗</span>
-              </a>
-            ))}
+  <div class="hero-below">
+    {
+      guideArticles.length > 0 && (
+        <div class="cover-lines">
+          <div class="cover-head">
+            <span>In This Issue</span>
+            <span>{String(guideArticles.length).padStart(2, '0')} Entries</span>
           </div>
-        )
-      }
-      <Globe />
-    </aside>
+          {guideArticles.map((article, index) => (
+            <a class="cover-line" href={articlePath(article.data.slug)}>
+              <span class="cl-no">{String(index + 1).padStart(2, '0')}</span>
+              <span>
+                <span class="cl-title">{article.data.title}</span>
+                <span class="cl-meta">
+                  {article.data.category} · {getArticleReadingTime(article)} min
+                </span>
+              </span>
+              <span class="cl-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      )
+    }
+    <Globe />
   </div>
 
   {

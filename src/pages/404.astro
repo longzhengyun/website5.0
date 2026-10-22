@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MeteorBackground from '../components/MeteorBackground.astro';
 import { articlePath, getPublishedArticles } from '../lib/content';
 
 const description = '请求的页面不存在或已经移动。可以返回封面，或从索引里重新找一条路径。';
@@ -9,6 +10,7 @@ const articles = (await getPublishedArticles()).slice(0, 3);
 <BaseLayout title="页面不存在" description={description} noindex noCanonical>
   <div class="page">
     <div class="e404">
+      <MeteorBackground />
       <p class="e404-kicker">Error / Not in this issue</p>
       <h1 aria-label="404 页面未找到">
         <span aria-hidden="true">4</span><span aria-hidden="true">0</span><span aria-hidden="true">4</span>

@@ -15,14 +15,13 @@
       /* 存储不可用时继续 */
     }
     if (!theme) {
-      if (window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
-      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
-      else theme = 'dark';
+      /* D1 默认暗色：无 URL 参数、无手动存储时不再跟随系统，Night 为品牌默认 */
+      theme = 'dark';
     }
     root.dataset.theme = theme;
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'dark' ? '#0f100e' : '#f3efe4');
+      meta.setAttribute('content', theme === 'dark' ? '#14171f' : '#f5f5f2');
     }
   })();
 </script>
