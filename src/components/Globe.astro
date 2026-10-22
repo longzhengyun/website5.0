@@ -71,8 +71,9 @@
       setLive(window.innerWidth > 620);
       if (window.innerWidth <= 620) return;
 
-      const blue = token('--blue', '#1b2cff');
-      const line = token('--line-2', 'rgba(22,22,19,.42)');
+      const accent = token('--accent', '#ff3d81');
+      const cool = token('--cool', '#56d1e0');
+      const line = token('--line-2', 'rgba(233,236,242,.32)');
       const faint = token('--faint', line);
       ctx.clearRect(0, 0, w, h);
       const cx = w * 0.52;
@@ -101,7 +102,7 @@
       ctx.rotate(-0.34);
       ctx.beginPath();
       ctx.ellipse(0, 0, R * 1.28, R * 0.46, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = blue;
+      ctx.strokeStyle = cool;
       ctx.globalAlpha = 0.72;
       ctx.stroke();
       ctx.restore();
@@ -123,7 +124,7 @@
         return { sx: cx + x * R * scale, sy: cy + y * R * scale, depth, z: z2 };
       });
       projected.sort((a, b) => a.z - b.z);
-      ctx.fillStyle = blue;
+      ctx.fillStyle = accent;
       for (const p of projected) {
         ctx.globalAlpha = 0.08 + p.depth * 0.56;
         ctx.beginPath();
@@ -141,7 +142,7 @@
         const px = pointer.x * w;
         const py = pointer.y * h;
         ctx.globalAlpha = 0.48;
-        ctx.strokeStyle = blue;
+        ctx.strokeStyle = cool;
         ctx.beginPath();
         ctx.moveTo(px, 0);
         ctx.lineTo(px, h);
@@ -154,7 +155,7 @@
         ctx.arc(px, py, 4, 0, Math.PI * 2);
         ctx.stroke();
         ctx.globalAlpha = 0.9;
-        ctx.fillStyle = blue;
+        ctx.fillStyle = accent;
         ctx.font = '8px "JetBrains Mono", monospace';
         ctx.fillText(
           `${pointer.x.toFixed(3)} / ${pointer.y.toFixed(3)}`,

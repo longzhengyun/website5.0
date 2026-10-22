@@ -39,7 +39,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--cool);
   outline-offset: 3px;
 }
 
@@ -669,16 +669,16 @@ h3 {
 }
 
 .orb-dot {
-  fill: var(--blue);
+  fill: var(--accent);
 }
 
 .orb-dot-fill {
-  fill: var(--blue);
+  fill: var(--cool);
 }
 
 .orb-line {
   fill: none;
-  stroke: var(--blue);
+  stroke: var(--cool);
   stroke-width: 1;
   stroke-opacity: 0.36;
 }
@@ -1113,10 +1113,14 @@ h3 {
   margin-left: 4px;
 }
 
-.filter:hover,
-.filter[aria-current='page'] {
+.filter:hover {
   color: var(--ink);
   border-bottom-color: var(--ink);
+}
+
+.filter[aria-current='page'] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
 }
 
 .filter-state {
@@ -1724,13 +1728,13 @@ h3 {
   border-color: var(--blue);
 }
 
-/* 代码块（ProseScripts 生成的 .code-block 结构 = 锚点 .code） */
+/* 代码块（ProseScripts 生成的 .code-block 结构）：夜底下用 --paper-3 承托，不再反白 */
 .code-block {
   position: relative;
   margin: 1.8em 0;
-  background: var(--ink);
-  color: var(--paper);
-  border: 1px solid var(--ink);
+  background: var(--paper-3);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
 }
 
 .code-tools {
@@ -1739,11 +1743,11 @@ h3 {
   justify-content: flex-end;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
   font: 500 8px/1 var(--mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
+  color: color-mix(in srgb, var(--ink) 62%, transparent);
 }
 
 .code-lang {
@@ -1752,9 +1756,9 @@ h3 {
 
 .copy-code {
   appearance: none;
-  border: 1px solid color-mix(in srgb, var(--paper) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
   background: transparent;
-  color: color-mix(in srgb, var(--paper) 80%, transparent);
+  color: color-mix(in srgb, var(--ink) 80%, transparent);
   min-height: 44px;
   min-width: 44px;
   padding: 0 10px;
@@ -1767,9 +1771,9 @@ h3 {
 }
 
 .copy-code:hover {
-  background: var(--paper);
-  color: var(--ink);
-  border-color: var(--paper);
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
 
 .code-block pre {
@@ -2456,7 +2460,7 @@ a.adjacent-link:hover .adjacent-title {
 }
 
 .search-dialog::backdrop {
-  background: rgba(10, 10, 8, 0.55);
+  background: rgba(5, 7, 11, 0.62);
 }
 
 .search-dialog[open] {
