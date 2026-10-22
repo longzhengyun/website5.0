@@ -1,0 +1,22 @@
+---
+title: 内容模型草稿笔记
+slug: draft-content-model-notes
+summary: 这是一篇用于验证草稿过滤的测试文章，不应出现在任何公开页面、搜索索引、RSS 或 sitemap 中。
+category: 杂谈
+tags: [草稿, 测试]
+publishedAt: 2026-10-19
+draft: true
+---
+
+## 草稿验证目标
+
+这篇内容只用于 M2 骨架验证：`draft: true` 的文章不得进入构建、搜索、RSS 与 sitemap。
+
+如果构建后能访问到本页，说明过滤链路有漏洞。
+
+## 检查点
+
+- 静态路由中不存在本 slug
+- Pagefind 索引中不包含本页正文
+- RSS 与 sitemap 不包含本页
+- 列表页与分类页不展示本页

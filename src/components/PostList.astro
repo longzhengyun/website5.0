@@ -1,0 +1,42 @@
+---
+import type { ArticleEntry } from '../lib/content';
+import { articlePath, formatDate } from '../lib/content';
+
+interface Props {
+  articles: ArticleEntry[];
+  startIndex?: number;
+  showHead?: boolean;
+}
+
+const { articles, startIndex = 0, showHead = true } = Astro.props;
+---
+
+<div class="entries">
+  {
+    showHead && articles.length > 0 && (
+      <div class="entries-head" aria-hidden="true">
+        <span>No.</span>
+        <span>Date</span>
+        <span>Title / 摘要</span>
+        <span>Category</span>
+        <span>Pg.</span>
+      </div>
+    )
+  }
+  {
+    articles.map((article, index) => (
+      <a class="entry" href={articlePath(article.data.slug)}>
+        <span class="entry-no">{String(startIndex + index + 1).padStart(3, '0')}</span>
+        <time class="entry-date" datetime={article.data.publishedAt.toISOString().slice(0, 10)}>
+          {formatDate(article.data.publishedAt)}
+        </time>
+        <span class="entry-main">
+          <span class="entry-title">{article.data.title}</span>
+          <span class="entry-sum">{article.data.summary}</span>
+        </span>
+        <span class="entry-cat">{article.data.category}</span>
+        <span class="entry-arrow" aria-hidden="true">↗</span>
+      </a>
+    ))
+  }
+</div>

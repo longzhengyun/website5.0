@@ -1,0 +1,40 @@
+---
+title: 主题切换如何做到首屏不闪
+slug: theme-toggle-no-flash
+summary: 明暗主题最容易忽略的是首屏闪烁。本文拆解阻塞脚本、localStorage、系统偏好与按钮状态同步的最小实现。
+category: JavaScript
+tags: [主题, 用户体验, JavaScript]
+publishedAt: 2026-09-20
+---
+
+## 闪烁从哪里来
+
+如果主题在样式加载后才由脚本设置，浏览器会先按默认主题绘制一次，再切到用户偏好。深色用户会看到一帧白屏，慢速设备上尤其明显。
+
+解决办法是在样式生效前决定主题，并把它写到根元素上。
+
+## 阻塞脚本的顺序
+
+主题脚本必须内联在 `<head>` 中，且位于样式之前。它只做一件事：读取偏好，写入 `data-theme`。
+
+```html
+<script>
+  (() => {
+    const stored = localStorage.getItem('jary-theme');
+    const theme = stored === 'dark' || stored === 'light'
+      ? stored
+      : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
+```
+
+脚本包在 `try/catch` 里，隐私模式禁用存储时回退到浅色。
+
+## 按钮状态与系统偏好
+
+首屏之后，切换按钮只负责更新根属性、持久化选择和同步 `aria-label`。如果用户没有手动选择过，可以继续跟随系统主题变化。
+
+- 不要在按钮上维护独立状态，根属性是唯一事实
+- 切换时更新 `aria-pressed` 或标签文案
+- 用 CSS 变量承载两套主题，避免组件内散落条件判断

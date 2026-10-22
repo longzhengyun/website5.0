@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../../../../layouts/BaseLayout.astro';
+import ArticleListPage from '../../../../../components/ArticleListPage.astro';
+import { ARTICLES_PER_PAGE } from '../../../../../config/site';
+import {
+  getArticlesByCategory,
+  getCategoriesInUse,
+  getPublishedArticles,
+  paginate,
+} from '../../../../../lib/content';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  const paths: Array<{
+    params: { category: string; page: string };
+    props: { label: string };
+  }> = [];
+
+  for (const category of getCategoriesInUse(articles)) {
+    const categoryArticles = getArticlesByCategory(articles, category.label);
+    const totalPages = Math.max(1, Math.ceil(categoryArticles.length / ARTICLES_PER_PAGE));
+    for (let page = 2; page <= totalPages; page += 1) {
+      paths.push({
+        params: { category: category.slug, page: String(page) },
+        props: { label: category.label },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+const slug = Astro.params.category!;
+const articles = await getPublishedArticles();
+const categoryArticles = getArticlesByCategory(articles, label);
+const pageNumber = Number(Astro.params.page);
+const { items, currentPage, totalPages } = paginate(categoryArticles, pageNumber);
+---
+
+<BaseLayout
+  section="articles"
+  title={`${label} 文章 · 第 ${currentPage} 页`}
+  description={`佳瑞网 ${label} 分类文章列表第 ${currentPage} 页，继续浏览与 ${label} 相关的 Web 前端实践、方案和取舍。`}
+>
+  <ArticleListPage
+    allArticles={articles}
+    pageArticles={items}
+    page={currentPage}
+    totalPages={totalPages}
+    category={{ slug, label }}
+  />
+</BaseLayout>

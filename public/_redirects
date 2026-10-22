@@ -1,0 +1,30 @@
+# 规范地址：页码 1 不生成独立页面
+/articles/page/1/ /articles/ 301
+/articles/page/1 /articles/ 301
+/articles/category/*/page/1/ /articles/category/:splat/ 301
+/articles/category/*/page/1 /articles/category/:splat/ 301
+
+# 旧站入口
+/site/ /#links 301
+/site /#links 301
+/search/ / 301
+/search / 301
+/login/ / 301
+/login / 301
+/mine/about/ /about/ 301
+/mine/about /about/ 301
+/mine/version/ /about/#version 301
+/mine/version /about/#version 301
+/mine/set/ / 301
+/mine/set / 301
+/mine/ / 301
+/mine / 301
+/mine/* / 301
+/resume/ /about/ 301
+/resume /about/ 301
+/article/ /articles/ 301
+/article /articles/ 301
+/article/* /articles/ 301
+/example/ /projects/ 301
+/example /projects/ 301
+/example/* /projects/ 301

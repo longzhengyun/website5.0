@@ -1,0 +1,38 @@
+---
+title: 减少动态不等于关掉动画
+slug: reduced-motion-design
+summary: 减少动态偏好不是关掉所有动画。本文整理透明、位移与自动播放的降级方式，并给出一份可访问的动效检查清单。
+category: HTML/CSS
+tags: [可访问性, 动效, CSS]
+publishedAt: 2026-08-09
+---
+
+## 先理解偏好
+
+`prefers-reduced-motion: reduce` 表示用户希望减少非必要的动态，不表示不能有任何状态变化。直接把所有过渡设为 `none`，有时反而让界面变化显得突兀。
+
+## 分类型降级
+
+位移、缩放和视差最容易引发不适，应该关闭；透明度变化和颜色过渡通常可以保留。
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+对于自动播放的轮播或地球动画，除了 CSS 降级，还应在脚本层停止循环，并提供静态首帧。
+
+## 检查清单
+
+- 交互结果不依赖动画才能理解
+- 焦点移动和页面跳转不使用平滑滚动
+- 视频和循环动画可暂停
+- 深色、浅色与减少动态三种偏好组合都要检查

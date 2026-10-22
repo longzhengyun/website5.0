@@ -1,0 +1,60 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  variant?: 'desktop' | 'mobile';
+}
+
+const { headings, variant = 'desktop' } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{
+  items.length >= 2 && variant === 'desktop' && (
+    <aside class="folio-rail" aria-label="本页目录">
+      <p class="rail-kicker">Folio / 页码</p>
+      <p class="rail-title">本页目录</p>
+      <ol class="folio-list">
+        {items.map((heading, index) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class={heading.depth === 3 ? 'depth-3' : undefined}
+              data-toc-link
+            >
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  )
+}
+
+{
+  items.length >= 2 && variant === 'mobile' && (
+    <details class="mobile-toc">
+      <summary>本文目录 / Contents</summary>
+      <ol>
+        {items.map((heading, index) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class={heading.depth === 3 ? 'depth-3' : undefined}
+              data-toc-link
+            >
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )
+}

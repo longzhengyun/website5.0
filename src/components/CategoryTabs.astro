@@ -1,0 +1,35 @@
+---
+import type { ArticleEntry } from '../lib/content';
+import { categoryPath, getCategoriesInUse } from '../lib/content';
+
+interface Props {
+  articles: ArticleEntry[];
+  activeSlug?: string;
+  activeCount?: number;
+}
+
+const { articles, activeSlug, activeCount } = Astro.props;
+const categories = getCategoriesInUse(articles);
+const shown = activeCount ?? articles.length;
+---
+
+<nav class="filters" aria-label="按分类筛选文章">
+  <a class="filter" href="/articles/" aria-current={!activeSlug ? 'page' : undefined}>
+    全部<b>{articles.length}</b>
+  </a>
+  {
+    categories.map((category) => (
+      <a
+        class="filter"
+        href={categoryPath(category.slug)}
+        aria-current={activeSlug === category.slug ? 'page' : undefined}
+      >
+        {category.label}
+        <b>{category.count}</b>
+      </a>
+    ))
+  }
+  <span class="filter-state" aria-live="polite">
+    {shown} / {articles.length} ENTRIES
+  </span>
+</nav>

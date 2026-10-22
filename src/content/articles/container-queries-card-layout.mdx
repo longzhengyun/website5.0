@@ -1,0 +1,45 @@
+---
+title: 用容器查询重构响应式卡片
+slug: container-queries-card-layout
+summary: 容器查询让卡片按自身宽度响应，而不是依赖视口。本文用一个文章列表组件，拆解容器声明、尺寸查询与降级写法。
+category: HTML/CSS
+tags: [CSS, 容器查询, 响应式]
+publishedAt: 2026-10-18
+featured: true
+---
+
+## 为什么需要容器查询
+
+同一个卡片组件可能出现在主栏、侧栏和弹窗里。只用媒体查询时，组件不知道自己所处的空间，只能按视口宽度猜测，结果往往是主栏里太窄、侧栏里又太大。
+
+容器查询把响应式判断从视口移到容器：组件观察父级容器的尺寸，再决定自己的布局。
+
+## 声明尺寸容器
+
+先让父级成为可查询的容器，再在组件内部写 `@container`：
+
+```css
+.card-grid {
+  container-type: inline-size;
+  container-name: card-grid;
+}
+
+@container card-grid (min-width: 32rem) {
+  .card {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+  }
+}
+```
+
+`container-type: inline-size` 只观察内联方向尺寸，对大多数卡片布局已经够用，也避免不必要的布局开销。
+
+## 降级与边界
+
+旧浏览器不支持容器查询时，会忽略 `@container` 规则，组件退回单列。这个降级可以接受，但需要保证基础样式本身可读。
+
+需要注意的是，容器查询只解决尺寸问题，不解决内容优先级。卡片在小容器里仍然要主动减少信息，而不是简单堆叠。
+
+- 基础布局先成立，再用容器查询增强
+- 不要给容器设置固定高度，除非确实需要
+- 用 `container-name` 避免嵌套容器互相干扰

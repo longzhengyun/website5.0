@@ -1,0 +1,105 @@
+---
+import ArticleListScripts from './ArticleListScripts.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import CategoryTabs from './CategoryTabs.astro';
+import Pagination from './Pagination.astro';
+import PostList from './PostList.astro';
+import type { ArticleEntry } from '../lib/content';
+import { ARTICLES_PER_PAGE } from '../config/site';
+import { formatDate } from '../lib/content';
+
+interface CategoryInfo {
+  slug: string;
+  label: string;
+}
+
+interface Props {
+  allArticles: ArticleEntry[];
+  pageArticles: ArticleEntry[];
+  page: number;
+  totalPages: number;
+  category?: CategoryInfo;
+  redirectQueries?: boolean;
+}
+
+const {
+  allArticles,
+  pageArticles,
+  page,
+  totalPages,
+  category,
+  redirectQueries = false,
+} = Astro.props;
+
+const scoped = category
+  ? allArticles.filter((article) => article.data.category === category.label)
+  : allArticles;
+const totalInScope = scoped.length;
+const latestDate = scoped[0] ? formatDate(scoped[0].data.publishedAt) : '—';
+
+const h1 = category ? category.label : '文章';
+const kicker = category ? 'CATEGORY / JOURNAL' : 'INDEX / JOURNAL';
+const baseDescription = category
+  ? `${category.label} 分类下的文章列表，记录 Web 前端实践中与 ${category.label} 相关的问题、方案和取舍，按发布时间倒序排列。`
+  : '佳瑞网的文章列表，记录 Web 前端、界面设计、性能优化与工程化的实践和取舍；按发布时间排列，可按分类筛选，并提供搜索入口。';
+const startIndex = (page - 1) * ARTICLES_PER_PAGE;
+
+const breadcrumbs = category
+  ? [
+      { label: '首页', href: '/' },
+      { label: '文章', href: '/articles/' },
+      { label: `${category.label} 文章` },
+    ]
+  : [];
+---
+
+<div class="page page--list" data-pagefind-body data-pagefind-meta="type:页面">
+  {category && <Breadcrumbs items={breadcrumbs} />}
+
+  <header class="page-head">
+    <div>
+      <p class="page-kicker">{kicker}</p>
+      <h1 id="page-title" tabindex="-1">
+        {h1}
+        { !category && <em>Log</em> }
+      </h1>
+      <p class="page-dek">{baseDescription}</p>
+    </div>
+    <div class="page-side">
+      {totalInScope} Entries
+      <br />
+      Updated <b>{latestDate}</b>
+      <br />
+      Ordered by date
+    </div>
+  </header>
+
+  <CategoryTabs articles={allArticles} activeSlug={category?.slug} activeCount={totalInScope} />
+
+  <section id="article-list" aria-labelledby="article-list-title">
+    <h2 class="sr-only" id="article-list-title" tabindex="-1">文章列表</h2>
+    {
+      pageArticles.length > 0 ? (
+        <PostList articles={pageArticles} startIndex={startIndex} />
+      ) : (
+        <div class="entries">
+          <div class="empty-state">
+            <strong>这一格没有文章。</strong>
+            <p>
+              <a href="/articles/">看全部文章</a>，或按 <kbd>⌘K</kbd> 打开完整索引。
+            </p>
+          </div>
+        </div>
+      )
+    }
+  </section>
+
+  <Pagination
+    currentPage={page}
+    totalPages={totalPages}
+    categorySlug={category?.slug}
+    totalArticles={totalInScope}
+  />
+
+  <ArticleListScripts redirectQueries={redirectQueries} />
+</div>

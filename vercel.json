@@ -1,0 +1,141 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/articles/page/1/",
+      "destination": "/articles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/articles/page/1",
+      "destination": "/articles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/articles/category/:slug/page/1/",
+      "destination": "/articles/category/:slug/",
+      "statusCode": 301
+    },
+    {
+      "source": "/articles/category/:slug/page/1",
+      "destination": "/articles/category/:slug/",
+      "statusCode": 301
+    },
+    {
+      "source": "/site/",
+      "destination": "/#links",
+      "statusCode": 301
+    },
+    {
+      "source": "/site",
+      "destination": "/#links",
+      "statusCode": 301
+    },
+    {
+      "source": "/search/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/search",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/login/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/login",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/about/",
+      "destination": "/about/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/about",
+      "destination": "/about/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/version/",
+      "destination": "/about/#version",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/version",
+      "destination": "/about/#version",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/set/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/set",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/mine/:path*",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/resume/",
+      "destination": "/about/",
+      "statusCode": 301
+    },
+    {
+      "source": "/resume",
+      "destination": "/about/",
+      "statusCode": 301
+    },
+    {
+      "source": "/article/",
+      "destination": "/articles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/article",
+      "destination": "/articles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/article/:path*",
+      "destination": "/articles/",
+      "statusCode": 301
+    },
+    {
+      "source": "/example/",
+      "destination": "/projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/example",
+      "destination": "/projects/",
+      "statusCode": 301
+    },
+    {
+      "source": "/example/:path*",
+      "destination": "/projects/",
+      "statusCode": 301
+    }
+  ]
+}

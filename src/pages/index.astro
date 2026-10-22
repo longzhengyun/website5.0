@@ -1,0 +1,266 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Globe from '../components/Globe.astro';
+import MeteorBackground from '../components/MeteorBackground.astro';
+import {
+  articlePath,
+  formatDate,
+  getFeaturedArticles,
+  getFeaturedProjects,
+  getProfile,
+  getPublishedArticles,
+  getPublishedProjects,
+  getArticleReadingTime,
+  projectPath,
+} from '../lib/content';
+import { getLinkGroups, getVersionLogs } from '../lib/data';
+import { SITE } from '../config/site';
+
+const [profile, articles, projects] = await Promise.all([
+  getProfile(),
+  getPublishedArticles(),
+  getPublishedProjects(),
+]);
+
+const meta = profile.data.siteMeta;
+const timezone = profile.data.timezone ?? 'UTC+8';
+
+const latest = getVersionLogs()[0];
+const issueNo = latest
+  ? String(parseInt(latest.version.replace(/^V/i, ''), 10)).padStart(2, '0')
+  : String(new Date().getFullYear());
+const issueDate = latest?.date ?? formatDate(new Date());
+
+const cover = getFeaturedArticles(articles, 1)[0] ?? articles[0];
+const coverIndex = cover ? articles.findIndex((a) => a.id === cover.id) : -1;
+const coverReading = cover ? getArticleReadingTime(cover) : 0;
+const guideArticles = articles.slice(0, 4);
+const contents = articles.slice(0, 6);
+const buildProjects = getFeaturedProjects(projects, 3);
+const linkGroups = getLinkGroups(6);
+const links = linkGroups.flatMap((group) => group.items.map((item) => ({ ...item, group: group.label })));
+
+const facts = [
+  { n: String(meta.startedYear), l: '站点建立 / Since' },
+  { n: String(articles.length).padStart(2, '0'), l: '已发布文章 / Entries' },
+  { n: String(projects.length).padStart(2, '0'), l: '项目档案 / Builds' },
+  { n: '0', l: '数据库 / Static' },
+];
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: Astro.site?.href,
+  description: SITE.description,
+  inLanguage: SITE.locale,
+};
+---
+
+<BaseLayout section="home">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+  </Fragment>
+
+  <div class="masthead">
+    <div class="masthead-brand">
+      <span class="masthead-name">{SITE.name}<b>8</b></span>
+      <span class="masthead-latin">A Technical Journal · Web Frontend · Since {meta.startedYear}</span>
+    </div>
+    <div class="masthead-meta">
+      <span>ISSUE<b>{issueNo}</b></span>
+      <span>DATE<b>{issueDate}</b></span>
+      <span>FORMAT<b>Static</b></span>
+    </div>
+  </div>
+
+  <section class="hero-band" aria-labelledby="hero-title">
+    <MeteorBackground />
+    <div class="hero-main">
+      {
+        cover && (
+          <p class="hero-kicker">
+            <b>Cover Story</b>
+            <span>{String(coverIndex + 1).padStart(3, '0')} / {issueNo}</span>
+            <span>{cover.data.publishedAt.getFullYear()}</span>
+          </p>
+        )
+      }
+      <h1 id="hero-title">
+        <span>界面要经得起</span>
+        <span class="accent">回看。</span>
+      </h1>
+      <p class="hero-dek">{SITE.description}</p>
+      <div class="hero-actions">
+        {
+          cover && (
+            <a class="btn btn-primary" href={articlePath(cover.data.slug)}>
+              阅读封面故事 <span aria-hidden="true">↗</span>
+            </a>
+          )
+        }
+        {contents.length > 0 && (
+          <a class="btn" href="#contents">
+            本期目录 <span aria-hidden="true">↓</span>
+          </a>
+        )}
+      </div>
+      {
+        cover && (
+          <div class="hero-meta">
+            <span>
+              <b>{profile.data.name}</b> / Web 前端开发
+            </span>
+            <span>{formatDate(cover.data.publishedAt)}</span>
+            <span>{coverReading} min read</span>
+            <span>{timezone}</span>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <div class="hero-below">
+    {
+      guideArticles.length > 0 && (
+        <div class="cover-lines">
+          <div class="cover-head">
+            <span>In This Issue</span>
+            <span>{String(guideArticles.length).padStart(2, '0')} Entries</span>
+          </div>
+          {guideArticles.map((article, index) => (
+            <a class="cover-line" href={articlePath(article.data.slug)}>
+              <span class="cl-no">{String(index + 1).padStart(2, '0')}</span>
+              <span>
+                <span class="cl-title">{article.data.title}</span>
+                <span class="cl-meta">
+                  {article.data.category} · {getArticleReadingTime(article)} min
+                </span>
+              </span>
+              <span class="cl-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      )
+    }
+    <Globe />
+  </div>
+
+  {
+    contents.length > 0 && (
+      <section class="section" id="contents" aria-labelledby="contents-title">
+        <div class="section-head">
+          <div>
+            <p class="sec-kicker">Contents / 本期目录</p>
+            <h2 class="sec-title" id="contents-title">
+              文章<em>Journal</em>
+            </h2>
+          </div>
+          <a class="sec-link" href="/articles/">
+            全部 {articles.length} 篇 <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <div class="contents">
+          {contents.map((article, index) => (
+            <a class="toc-item" href={articlePath(article.data.slug)}>
+              <span class="toc-no">{String(index + 1).padStart(3, '0')}</span>
+              <span class="toc-title">{article.data.title}</span>
+              <span class="toc-meta">
+                {article.data.category} · {formatDate(article.data.publishedAt).slice(5)}
+              </span>
+            </a>
+          ))}
+        </div>
+        <div class="facts">
+          {facts.map((fact) => (
+            <div class="fact">
+              <span class="n">{fact.n}</span>
+              <span class="l">{fact.l}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    buildProjects.length > 0 && (
+      <section class="section" id="archive" aria-labelledby="archive-title">
+        <div class="section-head">
+          <div>
+            <p class="sec-kicker">Archive / 项目档案</p>
+            <h2 class="sec-title" id="archive-title">
+              项目<em>Builds</em>
+            </h2>
+          </div>
+          <a class="sec-link" href="/projects/">
+            打开档案 <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <div class="builds">
+          {buildProjects.map((project, index) => (
+            <a
+              class:list={['build-row', { 'no-plate': !project.data.cover }]}
+              href={projectPath(project.data.slug)}
+            >
+              <span class="build-no">{String(index + 1).padStart(2, '0')}</span>
+              <div class="build-main">
+                <h3 class="build-name">{project.data.title}</h3>
+                <span class="build-sub">
+                  {project.data.type} · {project.data.period} · {project.data.status}
+                </span>
+              </div>
+              <span class="build-stack">{project.data.stack.slice(0, 4).join(' / ')}</span>
+              {project.data.cover ? (
+                <span class="build-plate">
+                  <Image
+                    src={project.data.cover}
+                    alt=""
+                    width={320}
+                    height={200}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+              ) : (
+                <span class="build-plate" aria-hidden="true"></span>
+              )}
+              <span class="build-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    links.length > 0 && (
+      <section class="section" id="links" aria-labelledby="links-title">
+        <div class="section-head">
+          <div>
+            <p class="sec-kicker">Links / 常去</p>
+            <h2 class="sec-title" id="links-title">
+              常去<em>Signals</em>
+            </h2>
+          </div>
+          <span class="sec-link" aria-hidden="true">
+            {String(links.length).padStart(2, '0')} 条
+          </span>
+        </div>
+        <div class="contents">
+          {links.map((link, index) => (
+            <a class="toc-item" href={link.url} target="_blank" rel="noopener noreferrer">
+              <span class="toc-no">{String(index + 1).padStart(3, '0')}</span>
+              <span class="toc-title">
+                {link.title}
+                <span class="sr-only">（新窗口）</span>
+              </span>
+              <span class="toc-meta">{link.group} ↗</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

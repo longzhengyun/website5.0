@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="站主头像占位">
+  <rect width="800" height="800" fill="#f1eee7"/>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#cdc6b9"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#dots)" opacity="0.6"/>
+  <circle cx="400" cy="360" r="196" fill="#171512"/>
+  <circle cx="400" cy="360" r="196" fill="none" stroke="#b23a2c" stroke-width="2" stroke-dasharray="4 14"/>
+  <ellipse cx="400" cy="360" rx="300" ry="118" transform="rotate(-18 400 360)" fill="none" stroke="#b23a2c" stroke-width="2" opacity="0.75"/>
+  <circle cx="606" cy="282" r="7" fill="#b23a2c"/>
+  <text x="400" y="436" text-anchor="middle" font-family="Instrument Serif, Songti SC, serif" font-size="220" fill="#f7f5f0">J</text>
+  <text x="400" y="704" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="24" letter-spacing="10" fill="#8a847a">AVATAR PLACEHOLDER</text>
+</svg>

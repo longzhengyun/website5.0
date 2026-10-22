@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import ArticleListPage from '../../../../components/ArticleListPage.astro';
+import {
+  getArticlesByCategory,
+  getCategoriesInUse,
+  getPublishedArticles,
+  paginate,
+} from '../../../../lib/content';
+
+export async function getStaticPaths() {
+  const articles = await getPublishedArticles();
+  return getCategoriesInUse(articles).map((category) => ({
+    params: { category: category.slug },
+    props: { label: category.label },
+  }));
+}
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+const slug = Astro.params.category!;
+const articles = await getPublishedArticles();
+const categoryArticles = getArticlesByCategory(articles, label);
+const { items, currentPage, totalPages } = paginate(categoryArticles, 1);
+---
+
+<BaseLayout
+  section="articles"
+  title={`${label} 文章`}
+  description={`佳瑞网 ${label} 分类下的文章列表，记录 Web 前端实践中与 ${label} 相关的问题、方案和取舍，按发布时间倒序排列。`}
+>
+  <ArticleListPage
+    allArticles={articles}
+    pageArticles={items}
+    page={currentPage}
+    totalPages={totalPages}
+    category={{ slug, label }}
+  />
+</BaseLayout>

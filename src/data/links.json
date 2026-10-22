@@ -1,0 +1,110 @@
+[
+  {
+    "title": "MDN Web Docs",
+    "url": "https://developer.mozilla.org/",
+    "description": "Web 平台权威文档：HTML、CSS、JavaScript 与浏览器 API 的参考与指南。",
+    "category": "技术",
+    "featured": true,
+    "order": 1,
+    "addedAt": "2026-09-01"
+  },
+  {
+    "title": "web.dev",
+    "url": "https://web.dev/",
+    "description": "Google 的 Web 质量指南，覆盖性能、可访问性与现代浏览器能力。",
+    "category": "技术",
+    "featured": true,
+    "order": 2,
+    "addedAt": "2026-09-02"
+  },
+  {
+    "title": "Astro Docs",
+    "url": "https://docs.astro.build/",
+    "description": "Astro 官方文档：内容站、岛屿架构、内容集合与部署说明。",
+    "category": "技术",
+    "featured": false,
+    "order": 3,
+    "addedAt": "2026-09-03"
+  },
+  {
+    "title": "CSS-Tricks",
+    "url": "https://css-tricks.com/",
+    "description": "CSS 技巧与前端实践文章，适合查漏补缺和寻找实现思路。",
+    "category": "技术",
+    "featured": false,
+    "order": 4,
+    "addedAt": "2026-09-04"
+  },
+  {
+    "title": "GitHub",
+    "url": "https://github.com/",
+    "description": "代码托管与协作平台，本站源码与项目仓库都在这里。",
+    "category": "工具",
+    "featured": true,
+    "order": 1,
+    "addedAt": "2026-09-05"
+  },
+  {
+    "title": "Can I use",
+    "url": "https://caniuse.com/",
+    "description": "查询 Web API 与 CSS 特性的浏览器兼容性，支持按地区查看。",
+    "category": "工具",
+    "featured": true,
+    "order": 2,
+    "addedAt": "2026-09-06"
+  },
+  {
+    "title": "Figma",
+    "url": "https://www.figma.com/",
+    "description": "界面设计与原型协作工具，本站的视觉稿在这里迭代。",
+    "category": "工具",
+    "featured": false,
+    "order": 3,
+    "addedAt": "2026-09-07"
+  },
+  {
+    "title": "Pagefind",
+    "url": "https://pagefind.app/",
+    "description": "面向静态站点的客户端搜索，支持中文分词与构建期索引。",
+    "category": "工具",
+    "featured": false,
+    "order": 4,
+    "addedAt": "2026-09-08"
+  },
+  {
+    "title": "Hacker News",
+    "url": "https://news.ycombinator.com/",
+    "description": "技术社区与创业讨论，常能读到一线工程经验。",
+    "category": "其他",
+    "featured": true,
+    "order": 1,
+    "addedAt": "2026-09-09"
+  },
+  {
+    "title": "阮一峰的网络日志",
+    "url": "https://www.ruanyifeng.com/blog/",
+    "description": "长期更新的中文技术周刊与博客，覆盖面广。",
+    "category": "其他",
+    "featured": true,
+    "order": 2,
+    "addedAt": "2026-09-10"
+  },
+  {
+    "title": "少数派",
+    "url": "https://sspai.com/",
+    "description": "效率工具与数字生活内容，适合发现新的工作方式。",
+    "category": "其他",
+    "featured": false,
+    "order": 3,
+    "addedAt": "2026-09-11"
+  },
+  {
+    "title": "知乎",
+    "url": "https://www.zhihu.com/",
+    "description": "中文问答社区，适合追踪技术话题的讨论与经验。",
+    "category": "其他",
+    "featured": false,
+    "order": 4,
+    "addedAt": "2026-09-12"
+  }
+]

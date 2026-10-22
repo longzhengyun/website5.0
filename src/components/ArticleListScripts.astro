@@ -1,0 +1,87 @@
+---
+import { CATEGORIES } from '../config/site';
+
+interface Props {
+  redirectQueries?: boolean;
+}
+
+const { redirectQueries = false } = Astro.props;
+const categorySlugs = CATEGORIES.map((category) => category.slug);
+---
+
+<div
+  hidden
+  data-article-list
+  data-category-slugs={JSON.stringify(categorySlugs)}
+  data-redirect-queries={redirectQueries ? 'true' : 'false'}
+>
+</div>
+
+<script is:inline>
+  (function () {
+    var meta = document.querySelector('[data-article-list]');
+    if (!meta) return;
+    var root = document.querySelector('.page--list');
+
+    // 旧查询路由：/articles?category=...&page=... -> 静态路径
+    if (meta.dataset.redirectQueries === 'true') {
+      var params = new URLSearchParams(window.location.search);
+      if (params.has('category') || params.has('page')) {
+        var slugs = [];
+        try {
+          slugs = JSON.parse(meta.dataset.categorySlugs || '[]');
+        } catch (error) {
+          slugs = [];
+        }
+        var category = params.get('category');
+        var pageRaw = params.get('page');
+        var base = '/articles/';
+
+        if (category !== null && category !== '') {
+          if (slugs.indexOf(category) === -1) {
+            window.location.replace(base + window.location.hash);
+            return;
+          }
+          base = '/articles/category/' + category + '/';
+        }
+
+        if (pageRaw !== null && !/^[1-9][0-9]*$/.test(pageRaw)) {
+          window.location.replace(base + window.location.hash);
+          return;
+        }
+
+        var page = pageRaw === null ? 1 : parseInt(pageRaw, 10);
+        var target = page <= 1 ? base : base + 'page/' + page + '/';
+        window.location.replace(target + window.location.hash);
+      }
+    }
+
+    // 翻页后回到列表顶部并把焦点交给列表标题
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest('[data-page-link]');
+      if (!link) return;
+      try {
+        window.sessionStorage.setItem('jary:focus-list', '1');
+      } catch (error) {
+        /* 忽略存储不可用 */
+      }
+    });
+
+    var shouldFocus = false;
+    try {
+      shouldFocus = window.sessionStorage.getItem('jary:focus-list') === '1';
+      if (shouldFocus) window.sessionStorage.removeItem('jary:focus-list');
+    } catch (error) {
+      shouldFocus = false;
+    }
+
+    if (shouldFocus && root) {
+      var heading = document.getElementById('article-list-title');
+      if (heading) {
+        heading.focus({ preventScroll: true });
+        var list = document.getElementById('article-list');
+        if (list) list.scrollIntoView({ block: 'start' });
+      }
+    }
+  })();
+</script>

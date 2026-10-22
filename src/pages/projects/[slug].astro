@@ -1,0 +1,186 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProseScripts from '../../components/ProseScripts.astro';
+import { SITE } from '../../config/site';
+import {
+  getAdjacentProjects,
+  getProfile,
+  getPublishedProjects,
+  projectPath,
+} from '../../lib/content';
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.map((project) => ({
+    params: { slug: project.data.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const [profile, projects] = await Promise.all([getProfile(), getPublishedProjects()]);
+const { Content } = await render(project);
+const { prev, next } = getAdjacentProjects(projects, project);
+const gallery = project.data.gallery ?? [];
+const site = Astro.site ?? new URL('https://jary8.com');
+const projectUrl = new URL(projectPath(project.data.slug), site).href;
+const coverUrl = project.data.cover
+  ? new URL(project.data.cover.src, site).href
+  : new URL(SITE.defaultOgImage, site).href;
+
+const caseNo = String(projects.findIndex((item) => item.id === project.id) + 1).padStart(2, '0');
+const breadcrumbItems = [
+  { label: '项目', href: '/projects/' },
+  { label: project.data.title },
+];
+
+const creativeWorkSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.data.title,
+  description: project.data.summary,
+  url: projectUrl,
+  inLanguage: SITE.locale,
+  image: coverUrl,
+  keywords: project.data.stack.join(', '),
+  creator: {
+    '@type': 'Person',
+    name: profile.data.name,
+    url: new URL('/', site).href,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: item.href ? new URL(item.href, site).href : projectUrl,
+  })),
+};
+---
+
+<BaseLayout
+  section="projects"
+  title={project.data.title}
+  description={project.data.summary}
+  ogImage={project.data.cover?.src}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(creativeWorkSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <div class="page" data-pagefind-body data-pagefind-meta="type:项目">
+    <article class:list={['case', { 'no-plate': !project.data.cover }]}>
+      <header class="case-head">
+        <p class="page-kicker">
+          Case {caseNo} / {project.data.type} · {project.data.status}
+        </p>
+        <h1 id="case-title" data-pagefind-meta="title">{project.data.title}</h1>
+        <p class="case-dek">{project.data.summary}</p>
+        <dl class="case-meta">
+          <div><dt>Status</dt><dd>{project.data.status}</dd></div>
+          <div><dt>Period</dt><dd>{project.data.period}</dd></div>
+          <div><dt>Role</dt><dd>{project.data.role}</dd></div>
+          <div><dt>Stack</dt><dd>{project.data.stack.slice(0, 4).join(' / ')}</dd></div>
+        </dl>
+      </header>
+
+      <div class="case-cover">
+        <div class="plate">
+          {project.data.cover && (
+            <Image
+              src={project.data.cover}
+              alt={`${project.data.title} 封面`}
+              width={project.data.cover.width}
+              height={project.data.cover.height}
+              widths={[640, 960, 1280]}
+              sizes="(min-width: 1280px) 68rem, 100vw"
+              loading="eager"
+              decoding="async"
+            />
+          )}
+        </div>
+      </div>
+
+      <div class="case-body">
+        <div class="case-prose prose" data-prose-content>
+          <Content />
+
+          {gallery.length > 0 && (
+            <section class="project-gallery" aria-labelledby="project-gallery-title">
+              <h2 class="project-gallery-title" id="project-gallery-title">界面截图</h2>
+              <div class="project-gallery-grid">
+                {gallery.map((image, index) => (
+                  <figure>
+                    <Image
+                      src={image}
+                      alt={`${project.data.title} 截图 ${index + 1}`}
+                      width={image.width}
+                      height={image.height}
+                      widths={[480, 800, 1200]}
+                      sizes="(min-width: 40rem) 50vw, 100vw"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <aside class="case-facts" aria-labelledby="case-facts-title">
+          <h2 id="case-facts-title">Facts</h2>
+          <dl>
+            <div class="fact-row"><dt>Type</dt><dd>{project.data.type}</dd></div>
+            <div class="fact-row"><dt>Status</dt><dd>{project.data.status}</dd></div>
+            <div class="fact-row"><dt>Period</dt><dd>{project.data.period}</dd></div>
+            <div class="fact-row"><dt>Role</dt><dd>{project.data.role}</dd></div>
+            <div class="fact-row">
+              <dt>Stack</dt>
+              <dd>{project.data.stack.join(' / ')}</dd>
+            </div>
+            {project.data.links.map((link) => (
+              <div class="fact-row">
+                <dt>{link.label}</dt>
+                <dd>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    打开<span aria-hidden="true"> ↗</span>
+                    <span class="sr-only">（新窗口）</span>
+                  </a>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </aside>
+      </div>
+
+      {next && (
+        <a class="case-next" href={projectPath(next.data.slug)} rel="next">
+          <span>
+            <span class="k">Next Case / 下一个项目</span>
+            <span class="t">{next.data.title}</span>
+          </span>
+          <span class="build-arrow" aria-hidden="true">↗</span>
+        </a>
+      )}
+      {prev && (
+        <a class="case-next" href={projectPath(prev.data.slug)} rel="prev">
+          <span>
+            <span class="k">Previous Case / 上一个项目</span>
+            <span class="t">{prev.data.title}</span>
+          </span>
+          <span class="build-arrow" aria-hidden="true">↗</span>
+        </a>
+      )}
+    </article>
+  </div>
+
+  <ProseScripts />
+</BaseLayout>

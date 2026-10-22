@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleListPage from '../../components/ArticleListPage.astro';
+import { getPublishedArticles, paginate } from '../../lib/content';
+
+const articles = await getPublishedArticles();
+const { items, currentPage, totalPages } = paginate(articles, 1);
+---
+
+<BaseLayout
+  section="articles"
+  title="文章"
+  description="佳瑞网的文章列表，记录 Web 前端、界面设计、性能优化与工程化的实践和取舍；按发布时间排列，可按分类筛选，并提供搜索入口。"
+>
+  <ArticleListPage
+    allArticles={articles}
+    pageArticles={items}
+    page={currentPage}
+    totalPages={totalPages}
+    redirectQueries={true}
+  />
+</BaseLayout>

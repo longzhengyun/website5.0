@@ -1,0 +1,165 @@
+---
+---
+
+<script is:inline>
+  (function () {
+    var content = document.querySelector('[data-prose-content]');
+    if (!content) return;
+
+    function liveRegion() {
+      var region = document.querySelector('[data-copy-live]');
+      if (!region) {
+        region = document.createElement('span');
+        region.className = 'sr-only';
+        region.setAttribute('role', 'status');
+        region.setAttribute('aria-live', 'polite');
+        region.setAttribute('data-copy-live', '');
+        document.body.appendChild(region);
+      }
+      return region;
+    }
+
+    // 代码块：语言标签 + 复制按钮
+    content.querySelectorAll('pre').forEach(function (pre) {
+      if (pre.closest('.code-block')) return;
+      var wrapper = document.createElement('div');
+      wrapper.className = 'code-block';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      var tools = document.createElement('div');
+      tools.className = 'code-tools';
+
+      var language = pre.getAttribute('data-language');
+      if (language) {
+        var label = document.createElement('span');
+        label.className = 'code-lang';
+        label.textContent = language;
+        tools.appendChild(label);
+      }
+
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'copy-code';
+      button.textContent = '复制代码';
+      button.setAttribute(
+        'aria-label',
+        language ? '复制 ' + language + ' 代码' : '复制代码',
+      );
+
+      var resetTimer = 0;
+      button.addEventListener('click', function () {
+        var code = pre.innerText;
+        var done = function () {
+          button.textContent = '已复制';
+          liveRegion().textContent = '代码已复制到剪贴板';
+          window.clearTimeout(resetTimer);
+          resetTimer = window.setTimeout(function () {
+            button.textContent = '复制代码';
+            liveRegion().textContent = '';
+          }, 2000);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(code).then(done, function () {
+            liveRegion().textContent = '复制失败，请手动选择代码。';
+          });
+        } else {
+          var area = document.createElement('textarea');
+          area.value = code;
+          area.setAttribute('readonly', '');
+          area.style.position = 'fixed';
+          area.style.opacity = '0';
+          document.body.appendChild(area);
+          area.select();
+          try {
+            document.execCommand('copy');
+            done();
+          } catch (error) {
+            liveRegion().textContent = '复制失败，请手动选择代码。';
+          }
+          area.remove();
+        }
+      });
+
+      tools.appendChild(button);
+      wrapper.appendChild(tools);
+    });
+
+    // 正文外链：新窗口 + 安全属性
+    content.querySelectorAll('a[href^="http"]').forEach(function (link) {
+      if (new URL(link.href, window.location.href).origin === window.location.origin) return;
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      if (link.querySelector('.external-hint')) return;
+      var hint = document.createElement('span');
+      hint.className = 'sr-only external-hint';
+      hint.textContent = '（新窗口）';
+      link.appendChild(hint);
+    });
+
+    // 正文图片：点击查看原图
+    content.querySelectorAll('img').forEach(function (image) {
+      if (image.closest('a')) return;
+      if (!image.getAttribute('alt')) image.setAttribute('alt', '');
+      image.setAttribute('loading', 'lazy');
+      image.setAttribute('decoding', 'async');
+      var link = document.createElement('a');
+      link.className = 'image-link';
+      link.href = image.currentSrc || image.src;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label', '查看原图（新窗口）');
+      image.parentNode.insertBefore(link, image);
+      link.appendChild(image);
+    });
+
+    // 文章正文节号：与 anchor 的 “NN / 标签” kicker 同构（仅 article-wrap 内生效）
+    if (content.closest('.article-wrap')) {
+      var secIndex = 0;
+      content.querySelectorAll(':scope > h2').forEach(function (heading) {
+        if (heading.querySelector('.secno')) return;
+        secIndex += 1;
+        var raw = (heading.textContent || '').trim();
+        var label = raw.length >= 2 ? raw.slice(-2) : raw;
+        var secno = document.createElement('span');
+        secno.className = 'secno';
+        secno.setAttribute('aria-hidden', 'true');
+        secno.textContent = (secIndex < 10 ? '0' : '') + secIndex + ' / ' + label;
+        heading.insertBefore(secno, heading.firstChild);
+      });
+    }
+
+    // 目录滚动高亮
+    var tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+    if (tocLinks.length === 0) return;
+    var targets = tocLinks
+      .map(function (link) {
+        var id = decodeURIComponent(link.getAttribute('href').slice(1));
+        var heading = document.getElementById(id);
+        return heading ? { link: link, heading: heading } : null;
+      })
+      .filter(Boolean);
+
+    if (!('IntersectionObserver' in window) || targets.length === 0) return;
+    var activate = function (active) {
+      targets.forEach(function (item) {
+        if (item.link === active) item.link.setAttribute('aria-current', 'location');
+        else item.link.removeAttribute('aria-current');
+      });
+    };
+    var observer = new IntersectionObserver(
+      function (entries) {
+        var visible = entries
+          .filter(function (entry) { return entry.isIntersecting; })
+          .sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+        if (visible.length === 0) return;
+        var match = targets.find(function (item) {
+          return item.heading === visible[0].target;
+        });
+        if (match) activate(match.link);
+      },
+      { rootMargin: '-15% 0px -70% 0px', threshold: 0 },
+    );
+    targets.forEach(function (item) { observer.observe(item.heading); });
+  })();
+</script>

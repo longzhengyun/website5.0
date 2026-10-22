@@ -1,0 +1,38 @@
+---
+title: 用 Canvas 画一个点阵地球
+slug: canvas-dot-globe
+summary: 不引入 Three.js，用 Canvas 2D 和 Fibonacci 球面点阵画一个可旋转地球，并控制首屏开销、DPR 与低端设备的降级路径。
+category: JavaScript
+tags: [Canvas, 动效, 性能]
+publishedAt: 2026-10-11
+featured: true
+---
+
+## 先确定视觉目标
+
+首页只需要一个墨色点阵球体和一条朱砂轨道。它不承载信息，也不应该成为首屏负担。明确这一点后，Three.js 就不再是默认选项。
+
+Canvas 2D 足够画点、足够做旋转，而且运行时可以压到几 KB。
+
+## Fibonacci 球面点阵
+
+均匀分布是点阵好看的前提。用 Fibonacci 螺旋在球面上撒点，比随机采样更稳定：
+
+```js
+for (let i = 0; i < count; i++) {
+  const y = 1 - (i / (count - 1)) * 2;
+  const radius = Math.sqrt(1 - y * y);
+  const theta = i * Math.PI * (3 - Math.sqrt(5));
+  points.push([Math.cos(theta) * radius, y, Math.sin(theta) * radius]);
+}
+```
+
+每帧只更新旋转角，把三维点投影到二维，再按深度调整透明度和点径。
+
+## 运行时与降级
+
+地球只在桌面、精细指针、非省流且未开启减少动态时加载。移动端与平板使用构建期生成的静态海报，运行时请求为零。
+
+- DPR 上限设为 1.5，避免高分屏过度绘制
+- 页面隐藏或离开视口时暂停动画
+- 加载失败时保留海报，不显示错误提示

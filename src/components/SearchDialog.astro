@@ -1,0 +1,275 @@
+---
+---
+<dialog
+  id="searchDialog"
+  class="search-dialog"
+  aria-labelledby="searchTitle"
+  aria-describedby="searchHelp"
+>
+  <h2 id="searchTitle" class="sr-only">搜索站点内容</h2>
+  <p id="searchHelp" class="sr-only">输入关键词后按结果列表浏览，按 Esc 关闭。</p>
+  <form class="search-form" role="search" data-search-form>
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+    <label class="sr-only" for="searchInput">搜索文章与项目</label>
+    <input
+      id="searchInput"
+      class="search-input"
+      type="search"
+      name="q"
+      placeholder="搜索文章与项目…"
+      autocomplete="off"
+      spellcheck="false"
+      data-search-input
+    />
+    <span class="search-kbd-hint" aria-hidden="true">Esc 关闭</span>
+    <button class="icon-btn search-close" type="button" data-close-search aria-label="关闭搜索">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+    </button>
+  </form>
+  <div class="search-body">
+    <p class="search-status" role="status" aria-live="polite" data-search-status>
+      输入关键词，搜索文章与项目。支持中文。
+    </p>
+    <div class="search-results-wrap" data-search-results></div>
+  </div>
+  <p class="search-foot">
+    <span><b>Enter</b> 打开结果</span>
+    <span><b>Esc</b> 关闭</span>
+    <span><b>/</b> 或 <b>⌘K</b> 唤起索引</span>
+    <span>本地索引 · Pagefind</span>
+  </p>
+</dialog>
+
+<script>
+  type SearchResult = {
+    url: string;
+    excerpt: string;
+    meta?: Record<string, string>;
+  };
+
+  const dialog = document.querySelector<HTMLDialogElement>('#searchDialog')!;
+  const input = document.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]')!;
+  const status = document.querySelector<HTMLElement>('[data-search-status]')!;
+  const resultsRoot = document.querySelector<HTMLElement>('[data-search-results]')!;
+  const triggers = Array.from(document.querySelectorAll<HTMLElement>('[data-open-search]'));
+  const closeButton = document.querySelector<HTMLButtonElement>('[data-close-search]');
+
+  if (dialog && input && form && status && resultsRoot) {
+    let pagefind: any = null;
+    let pagefindFailed = false;
+    let loadPromise: Promise<any> | null = null;
+    let searchToken = 0;
+    let lastTrigger: HTMLElement | null = null;
+
+    function initialStatus() {
+      status.innerHTML =
+        '<strong>搜索文章与项目</strong>输入 1 个字符即可搜索，支持中文关键词；按 <kbd>Esc</kbd> 关闭。';
+      resultsRoot.replaceChildren();
+    }
+
+    async function loadPagefind() {
+      if (pagefind) return pagefind;
+      if (loadPromise) return loadPromise;
+      loadPromise = (async () => {
+        const url = new URL('/pagefind/pagefind.js', window.location.origin).href;
+        const module = await import(/* @vite-ignore */ url);
+        await module.init();
+        pagefind = module;
+        return module;
+      })();
+      return loadPromise;
+    }
+
+    function sanitizeExcerpt(html: string): string {
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      template.content.querySelectorAll('*').forEach((element) => {
+        if (element.tagName !== 'MARK') {
+          element.replaceWith(...Array.from(element.childNodes));
+        } else {
+          Array.from(element.attributes).forEach((attribute) =>
+            element.removeAttribute(attribute.name),
+          );
+        }
+      });
+      return template.innerHTML;
+    }
+
+    function resultType(item: SearchResult): '文章' | '项目' | '其他' {
+      const type = item.meta?.type;
+      return type === '文章' || type === '项目' ? type : '其他';
+    }
+
+    function renderResult(item: SearchResult) {
+      const type = resultType(item);
+      const listItem = document.createElement('li');
+      listItem.className = 'search-result';
+
+      const link = document.createElement('a');
+      link.href = item.url;
+
+      const typeLabel = document.createElement('span');
+      typeLabel.className = 'search-result-type';
+      typeLabel.textContent = type;
+
+      const title = document.createElement('span');
+      title.className = 'search-result-title';
+      title.textContent = item.meta?.title || item.url;
+
+      const metaText = item.meta?.date || item.meta?.period;
+      const meta = document.createElement('span');
+      meta.className = 'search-result-meta';
+      meta.textContent = metaText ? `${type} · ${metaText}` : type;
+
+      const excerpt = document.createElement('span');
+      excerpt.className = 'search-excerpt';
+      excerpt.innerHTML = sanitizeExcerpt(item.excerpt || '');
+
+      link.append(typeLabel, title, meta, excerpt);
+      link.addEventListener('click', () => dialog.close());
+      listItem.append(link);
+      return listItem;
+    }
+
+    function renderGroups(items: SearchResult[]) {
+      const groups: Array<{ label: string; items: SearchResult[] }> = [
+        { label: '文章', items: items.filter((item) => resultType(item) === '文章') },
+        { label: '项目', items: items.filter((item) => resultType(item) === '项目') },
+        { label: '其他', items: items.filter((item) => resultType(item) === '其他') },
+      ].filter((group) => group.items.length > 0);
+
+      resultsRoot.replaceChildren();
+      for (const group of groups) {
+        const heading = document.createElement('p');
+        heading.className = 'search-group-title';
+        heading.textContent = `${group.label}（${group.items.length}）`;
+        resultsRoot.append(heading);
+
+        const list = document.createElement('ul');
+        list.className = 'search-results';
+        for (const item of group.items) list.append(renderResult(item));
+        resultsRoot.append(list);
+      }
+    }
+
+    function renderEmpty(query: string) {
+      resultsRoot.replaceChildren();
+      const empty = document.createElement('div');
+      empty.className = 'search-empty';
+      const title = document.createElement('strong');
+      title.textContent = `没有找到与「${query}」相关的内容`;
+      const hint = document.createElement('span');
+      hint.textContent = '试试更短的关键词，或浏览全部文章与项目。';
+      empty.append(title, hint);
+      resultsRoot.append(empty);
+    }
+
+    function renderError() {
+      resultsRoot.replaceChildren();
+      const empty = document.createElement('div');
+      empty.className = 'search-empty';
+      const title = document.createElement('strong');
+      title.textContent = '搜索暂时不可用';
+      const hint = document.createElement('span');
+      hint.textContent = '搜索索引尚未生成或加载失败；构建后可用的索引由 Pagefind 生成。';
+      empty.append(title, hint);
+      resultsRoot.append(empty);
+    }
+
+    async function runSearch(rawQuery: string) {
+      const query = rawQuery.trim();
+      const token = ++searchToken;
+
+      if (!query) {
+        initialStatus();
+        return;
+      }
+
+      if (pagefindFailed) {
+        status.textContent = '搜索索引不可用。';
+        renderError();
+        return;
+      }
+
+      status.textContent = '搜索中…';
+      try {
+        const search = await loadPagefind();
+        if (token !== searchToken) return;
+        const response = await search.search(query);
+        if (token !== searchToken) return;
+
+        const topResults = response.results.slice(0, 12);
+        const items: SearchResult[] = await Promise.all(
+          topResults.map((result: { data: () => Promise<SearchResult> }) => result.data()),
+        );
+        if (token !== searchToken) return;
+
+        if (items.length === 0) {
+          status.textContent = `「${query}」没有匹配结果。`;
+          renderEmpty(query);
+          return;
+        }
+
+        status.textContent = `找到 ${response.results.length} 条结果，展示前 ${items.length} 条。`;
+        renderGroups(items);
+      } catch {
+        pagefindFailed = true;
+        status.textContent = '搜索索引加载失败。';
+        renderError();
+      }
+    }
+
+    let debounceTimer = 0;
+    input.addEventListener('input', () => {
+      window.clearTimeout(debounceTimer);
+      const value = input.value;
+      debounceTimer = window.setTimeout(() => void runSearch(value), 120);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      void runSearch(input.value);
+    });
+
+    function openSearch(trigger: HTMLElement | null) {
+      lastTrigger = trigger;
+      if (!dialog.open) dialog.showModal();
+      input.value = '';
+      initialStatus();
+      window.requestAnimationFrame(() => input.focus());
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', () => openSearch(trigger));
+    });
+
+    closeButton?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('close', () => {
+      if (lastTrigger?.isConnected) lastTrigger.focus();
+    });
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement | null;
+      const isTyping =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable === true;
+
+      const isSlash = event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey;
+      const isCommandK =
+        (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+
+      if (!isSlash && !isCommandK) return;
+      if (isTyping) return;
+      event.preventDefault();
+      openSearch(document.activeElement as HTMLElement | null);
+    });
+  }
+</script>

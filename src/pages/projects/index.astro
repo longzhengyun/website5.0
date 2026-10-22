@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedProjects, projectPath } from '../../lib/content';
+
+const projects = await getPublishedProjects();
+const inProgress = projects.filter((project) => project.data.status === '进行中').length;
+const description =
+  '佳瑞网的项目档案：包括正在进行的网站重构、Canvas 点阵地球实验和上一代内容站，记录目标、方案、取舍与结果。';
+---
+
+<BaseLayout section="projects" title="项目" description={description}>
+  <div class="page" data-pagefind-body data-pagefind-meta="type:页面">
+    <header class="page-head">
+      <div>
+        <p class="page-kicker">Archive / Builds</p>
+        <h1 id="page-title" tabindex="-1">
+          项目<em>Builds</em>
+        </h1>
+        <p class="page-dek">{description}</p>
+      </div>
+      <div class="page-side">
+        {String(projects.length).padStart(2, '0')} Builds
+        {inProgress > 0 && (
+          <>
+            <br />
+            <b>{inProgress}</b> 进行中
+          </>
+        )}
+        <br />
+        Ordered by priority
+      </div>
+    </header>
+
+    {
+      projects.length > 0 ? (
+        <div class="projects">
+          {projects.map((project, index) => (
+            <a
+              class:list={['project', { 'no-plate': !project.data.cover }]}
+              href={projectPath(project.data.slug)}
+            >
+              <span class="project-no">{String(index + 1).padStart(2, '0')}</span>
+              <div class="project-main">
+                <h2 class="project-title">{project.data.title}</h2>
+                <p class="project-sum">{project.data.summary}</p>
+                <p class="project-meta">
+                  {project.data.type} · {project.data.period} · {project.data.status}
+                  <br />
+                  {project.data.stack.slice(0, 4).join(' / ')}
+                </p>
+              </div>
+              <span class="project-plate">
+                {project.data.cover && (
+                  <Image
+                    src={project.data.cover}
+                    alt=""
+                    width={340}
+                    height={255}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </span>
+              <span class="project-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="projects">
+          <div class="empty-state">
+            <strong>档案还是空的。</strong>
+            <p>
+              <a href="/articles/">先读文章</a>
+            </p>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

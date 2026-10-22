@@ -1,0 +1,27 @@
+---
+---
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    var theme = null;
+    try {
+      var param = new URLSearchParams(window.location.search).get('theme');
+      if (param === 'light' || param === 'dark') theme = param;
+      if (!theme) {
+        var saved = localStorage.getItem('jary-theme');
+        if (saved === 'light' || saved === 'dark') theme = saved;
+      }
+    } catch (error) {
+      /* 存储不可用时继续 */
+    }
+    if (!theme) {
+      /* D1 默认暗色：无 URL 参数、无手动存储时不再跟随系统，Night 为品牌默认 */
+      theme = 'dark';
+    }
+    root.dataset.theme = theme;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', theme === 'dark' ? '#14171f' : '#f5f5f2');
+    }
+  })();
+</script>
