@@ -61,7 +61,7 @@ npm run search:index # 对已有 dist 重新生成搜索索引
 ## 部署
 
 - 静态托管，构建命令 `npm run build`，产物目录 `dist/`。
-- 站点域名通过环境变量 `SITE_URL` 覆盖（默认 `https://jary8.com`），用于 canonical、RSS、sitemap 与 robots。
+- 站点域名通过环境变量 `SITE_URL` 覆盖（默认 `https://www.jary8.com`），用于 canonical、RSS、sitemap 与 robots。
 - Cloudflare Pages 使用 `public/_redirects` 处理路径重定向。
 - Vercel 使用根目录 `vercel.json`；两处都保留 301 规则。
 - 查询参数重定向无法由 Cloudflare `_redirects` 表达，由 `/articles/` 内联脚本兜底。
